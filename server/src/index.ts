@@ -220,6 +220,10 @@ app.post("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) =
     }
   }
 
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   const comment = await prisma.comment.create({
     data: {
       content: content.trim(),
@@ -342,6 +346,12 @@ app.delete("/api/comments/:commentId", authMiddleware, async (req, res) => {
   return res.json({ success: true });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
-});
+// Export app for testing
+export { app };
+
+// Only start server if this file is run directly
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server listening on http://localhost:${PORT}`);
+  });
+}
