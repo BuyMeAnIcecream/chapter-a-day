@@ -2,7 +2,7 @@ const API_BASE = "http://localhost:4000";
 
 type AuthResponse = {
   token: string;
-  user: { id: string; email: string };
+  user: { id: string; username: string };
 };
 
 const handleResponse = async <T>(response: Response): Promise<T> => {
@@ -16,25 +16,25 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
 };
 
 export const registerUser = async (
-  email: string,
+  username: string,
   password: string
 ): Promise<AuthResponse> => {
   const response = await fetch(`${API_BASE}/api/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ username, password })
   });
   return handleResponse<AuthResponse>(response);
 };
 
 export const loginUser = async (
-  email: string,
+  username: string,
   password: string
 ): Promise<AuthResponse> => {
   const response = await fetch(`${API_BASE}/api/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ username, password })
   });
   return handleResponse<AuthResponse>(response);
 };
@@ -67,7 +67,7 @@ export type Comment = {
   updatedAt: string;
   user: {
     id: string;
-    email: string;
+    username: string;
   };
   parentId: string | null;
   replies: Comment[];

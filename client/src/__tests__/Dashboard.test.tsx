@@ -15,7 +15,7 @@ vi.mock('../api', () => ({
 
 describe('Dashboard Comments', () => {
   const mockToken = 'test-token';
-  const mockEmail = 'test@example.com';
+  const mockUsername = 'testuser';
   const mockOnLogout = vi.fn();
 
   const mockTodayData = {
@@ -48,7 +48,7 @@ describe('Dashboard Comments', () => {
   });
 
   it('should display comments section', async () => {
-    render(<Dashboard token={mockToken} email={mockEmail} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
 
     await waitFor(() => {
       expect(screen.getByText('Comments')).toBeInTheDocument();
@@ -56,7 +56,7 @@ describe('Dashboard Comments', () => {
   });
 
   it('should display empty state when no comments', async () => {
-    render(<Dashboard token={mockToken} email={mockEmail} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
 
     await waitFor(() => {
       expect(screen.getByText(/No comments yet/)).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe('Dashboard Comments', () => {
           updatedAt: '2024-01-01T00:00:00Z',
           user: {
             id: 'user-1',
-            email: 'user1@example.com'
+            username: 'user1'
           },
           parentId: null,
           replies: []
@@ -85,7 +85,7 @@ describe('Dashboard Comments', () => {
           updatedAt: '2024-01-01T01:00:00Z',
           user: {
             id: 'user-2',
-            email: 'user2@example.com'
+            username: 'user2'
           },
           parentId: null,
           replies: []
@@ -95,13 +95,13 @@ describe('Dashboard Comments', () => {
 
     (api.fetchComments as any).mockResolvedValue(mockComments);
 
-    render(<Dashboard token={mockToken} email={mockEmail} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
 
     await waitFor(() => {
       expect(screen.getByText('First comment')).toBeInTheDocument();
       expect(screen.getByText('Second comment')).toBeInTheDocument();
-      expect(screen.getByText('user1@example.com')).toBeInTheDocument();
-      expect(screen.getByText('user2@example.com')).toBeInTheDocument();
+      expect(screen.getByText('user1')).toBeInTheDocument();
+      expect(screen.getByText('user2')).toBeInTheDocument();
     });
   });
 
@@ -112,10 +112,10 @@ describe('Dashboard Comments', () => {
       content: 'New comment',
       createdAt: '2024-01-01T02:00:00Z',
       updatedAt: '2024-01-01T02:00:00Z',
-      user: {
-        id: 'user-1',
-        email: mockEmail
-      },
+          user: {
+            id: 'user-1',
+            username: mockUsername
+          },
       parentId: null,
       replies: []
     };
@@ -125,7 +125,7 @@ describe('Dashboard Comments', () => {
       .mockResolvedValueOnce({ comments: [] })
       .mockResolvedValueOnce({ comments: [mockNewComment] });
 
-    render(<Dashboard token={mockToken} email={mockEmail} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText('Add a comment...')).toBeInTheDocument();
@@ -158,7 +158,7 @@ describe('Dashboard Comments', () => {
           updatedAt: '2024-01-01T00:00:00Z',
           user: {
             id: 'user-1',
-            email: 'user1@example.com'
+            username: 'user1'
           },
           parentId: null,
           replies: []
@@ -171,10 +171,10 @@ describe('Dashboard Comments', () => {
       content: 'This is a reply',
       createdAt: '2024-01-01T03:00:00Z',
       updatedAt: '2024-01-01T03:00:00Z',
-      user: {
-        id: 'user-2',
-        email: mockEmail
-      },
+          user: {
+            id: 'user-2',
+            username: mockUsername
+          },
       parentId: 'comment-1',
       replies: []
     };
@@ -192,7 +192,7 @@ describe('Dashboard Comments', () => {
         ]
       });
 
-    render(<Dashboard token={mockToken} email={mockEmail} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
 
     await waitFor(() => {
       expect(screen.getByText('Parent comment')).toBeInTheDocument();
@@ -243,7 +243,7 @@ describe('Dashboard Comments', () => {
           updatedAt: '2024-01-01T01:00:00Z',
           user: {
             id: 'user-2',
-            email: 'other@example.com'
+            username: 'otheruser'
           },
           parentId: null,
           replies: []
@@ -253,7 +253,7 @@ describe('Dashboard Comments', () => {
 
     (api.fetchComments as any).mockResolvedValue(mockComments);
 
-    render(<Dashboard token={mockToken} email={mockEmail} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
 
     await waitFor(() => {
       expect(screen.getByText('My comment')).toBeInTheDocument();
@@ -283,7 +283,7 @@ describe('Dashboard Comments', () => {
           updatedAt: '2024-01-01T00:00:00Z',
           user: {
             id: 'user-1',
-            email: mockEmail
+            username: mockUsername
           },
           parentId: null,
           replies: []
@@ -299,7 +299,7 @@ describe('Dashboard Comments', () => {
       .mockResolvedValueOnce({ comments: [] });
     (api.deleteComment as any).mockResolvedValue({ success: true });
 
-    render(<Dashboard token={mockToken} email={mockEmail} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
 
     await waitFor(() => {
       expect(screen.getByText('My comment')).toBeInTheDocument();
@@ -323,7 +323,7 @@ describe('Dashboard Comments', () => {
           updatedAt: '2024-01-01T00:00:00Z',
           user: {
             id: 'user-1',
-            email: 'user1@example.com'
+            username: 'user1'
           },
           parentId: null,
           replies: [
@@ -332,10 +332,10 @@ describe('Dashboard Comments', () => {
               content: 'First reply',
               createdAt: '2024-01-01T01:00:00Z',
               updatedAt: '2024-01-01T01:00:00Z',
-              user: {
-                id: 'user-2',
-                email: 'user2@example.com'
-              },
+          user: {
+            id: 'user-2',
+            username: 'user2'
+          },
               parentId: 'comment-1',
               replies: []
             },
@@ -344,10 +344,10 @@ describe('Dashboard Comments', () => {
               content: 'Second reply',
               createdAt: '2024-01-01T02:00:00Z',
               updatedAt: '2024-01-01T02:00:00Z',
-              user: {
-                id: 'user-3',
-                email: 'user3@example.com'
-              },
+          user: {
+            id: 'user-3',
+            username: 'user3'
+          },
               parentId: 'comment-1',
               replies: []
             }
@@ -358,7 +358,7 @@ describe('Dashboard Comments', () => {
 
     (api.fetchComments as any).mockResolvedValue(mockComments);
 
-    render(<Dashboard token={mockToken} email={mockEmail} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
 
     await waitFor(() => {
       expect(screen.getByText('Parent comment')).toBeInTheDocument();

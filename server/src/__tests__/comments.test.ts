@@ -7,8 +7,8 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 
 describe('Comments API', () => {
-  let user1: { id: string; email: string; token: string };
-  let user2: { id: string; email: string; token: string };
+  let user1: { id: string; username: string; token: string };
+  let user2: { id: string; username: string; token: string };
   let chapter: { id: string };
 
   beforeEach(async () => {
@@ -18,7 +18,7 @@ describe('Comments API', () => {
 
     const createdUser1 = await prisma.user.create({
       data: {
-        email: 'user1@test.com',
+        username: 'user1',
         passwordHash: passwordHash1,
         progress: { create: {} }
       }
@@ -26,7 +26,7 @@ describe('Comments API', () => {
 
     const createdUser2 = await prisma.user.create({
       data: {
-        email: 'user2@test.com',
+        username: 'user2',
         passwordHash: passwordHash2,
         progress: { create: {} }
       }
@@ -34,13 +34,13 @@ describe('Comments API', () => {
 
     user1 = {
       id: createdUser1.id,
-      email: createdUser1.email,
+      username: createdUser1.username,
       token: jwt.sign({ userId: createdUser1.id }, JWT_SECRET, { expiresIn: '7d' })
     };
 
     user2 = {
       id: createdUser2.id,
-      email: createdUser2.email,
+      username: createdUser2.username,
       token: jwt.sign({ userId: createdUser2.id }, JWT_SECRET, { expiresIn: '7d' })
     };
 
@@ -67,7 +67,7 @@ describe('Comments API', () => {
 
       expect(response.body).toHaveProperty('id');
       expect(response.body.content).toBe('This is a test comment');
-      expect(response.body.user.email).toBe(user1.email);
+      expect(response.body.user.username).toBe(user1.username);
       expect(response.body.parentId).toBeNull();
 
       // Verify comment was saved in database
@@ -125,7 +125,7 @@ describe('Comments API', () => {
 
       expect(response.body.content).toBe('This is a reply');
       expect(response.body.parentId).toBe(parentComment.id);
-      expect(response.body.user.email).toBe(user2.email);
+      expect(response.body.user.username).toBe(user2.username);
     });
 
     it('should reject reply to non-existent parent', async () => {

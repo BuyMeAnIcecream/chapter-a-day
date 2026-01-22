@@ -2,12 +2,12 @@ import { FormEvent, useState } from "react";
 import { loginUser, registerUser } from "../api";
 
 type Props = {
-  onAuthSuccess: (token: string, email: string) => void;
+  onAuthSuccess: (token: string, username: string) => void;
 };
 
 export const Login = ({ onAuthSuccess }: Props) => {
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,9 +19,9 @@ export const Login = ({ onAuthSuccess }: Props) => {
     try {
       const auth =
         mode === "login"
-          ? await loginUser(email, password)
-          : await registerUser(email, password);
-      onAuthSuccess(auth.token, auth.user.email);
+          ? await loginUser(username, password)
+          : await registerUser(username, password);
+      onAuthSuccess(auth.token, auth.user.username);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Authentication failed";
@@ -41,12 +41,13 @@ export const Login = ({ onAuthSuccess }: Props) => {
       </p>
       <form onSubmit={handleSubmit} className="stack">
         <label className="field">
-          Email
+          Username
           <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            type="text"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
             required
+            minLength={3}
           />
         </label>
         <label className="field">

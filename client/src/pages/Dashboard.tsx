@@ -3,7 +3,7 @@ import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment,
 
 type Props = {
   token: string;
-  email: string;
+  username: string;
   onLogout: () => void;
 };
 
@@ -13,7 +13,7 @@ type TodayResponse = {
   chapter: { id: string; book: string; chapterNumber: number; content: string };
 };
 
-export const Dashboard = ({ token, email, onLogout }: Props) => {
+export const Dashboard = ({ token, username, onLogout }: Props) => {
   const [today, setToday] = useState<TodayResponse | null>(null);
   const [lastDate, setLastDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -117,13 +117,13 @@ export const Dashboard = ({ token, email, onLogout }: Props) => {
   };
 
   const renderComment = (comment: Comment, depth: number = 0) => {
-    const isOwner = comment.user.email === email;
+    const isOwner = comment.user.username === username;
     const isReplying = replyingTo === comment.id;
 
     return (
       <div key={comment.id} className="comment" style={{ marginLeft: `${depth * 2}rem` }}>
         <div className="comment-header">
-          <span className="comment-author">{comment.user.email}</span>
+          <span className="comment-author">{comment.user.username}</span>
           <span className="comment-date">{formatDate(comment.createdAt)}</span>
         </div>
         <div className="comment-content">{comment.content}</div>
@@ -202,7 +202,7 @@ export const Dashboard = ({ token, email, onLogout }: Props) => {
       <div className="header">
         <div>
           <h1>Welcome back</h1>
-          <p className="subtitle">{email}</p>
+          <p className="subtitle">{username}</p>
         </div>
         <button onClick={onLogout} className="text-button">
           Log out

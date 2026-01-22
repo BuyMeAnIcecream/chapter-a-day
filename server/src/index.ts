@@ -45,24 +45,24 @@ const authMiddleware: express.RequestHandler = (req, res, next) => {
 };
 
 app.post("/api/register", async (req, res) => {
-  const { email, password } = req.body as {
-    email?: string;
+  const { username, password } = req.body as {
+    username?: string;
     password?: string;
   };
 
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password required" });
+  if (!username || !password) {
+    return res.status(400).json({ error: "Username and password required" });
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const existing = await prisma.user.findUnique({ where: { username } });
   if (existing) {
-    return res.status(409).json({ error: "Email already registered" });
+    return res.status(409).json({ error: "Username already taken" });
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { email, passwordHash, progress: { create: {} } },
-    select: { id: true, email: true }
+    data: { username, passwordHash, progress: { create: {} } },
+    select: { id: true, username: true }
   });
 
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
@@ -73,16 +73,16 @@ app.post("/api/register", async (req, res) => {
 });
 
 app.post("/api/login", async (req, res) => {
-  const { email, password } = req.body as {
-    email?: string;
+  const { username, password } = req.body as {
+    username?: string;
     password?: string;
   };
 
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password required" });
+  if (!username || !password) {
+    return res.status(400).json({ error: "Username and password required" });
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { username } });
   if (!user) {
     return res.status(401).json({ error: "Invalid credentials" });
   }
@@ -96,14 +96,14 @@ app.post("/api/login", async (req, res) => {
     expiresIn: "7d"
   });
 
-  return res.json({ token, user: { id: user.id, email: user.email } });
+  return res.json({ token, user: { id: user.id, username: user.username } });
 });
 
 app.get("/api/me", authMiddleware, async (req, res) => {
   const userId = (req as AuthRequest).userId;
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, createdAt: true }
+    select: { id: true, username: true, createdAt: true }
   });
   return res.json({ user });
 });
@@ -235,7 +235,7 @@ app.post("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) =
       user: {
         select: {
           id: true,
-          email: true
+          username: true
         }
       }
     }
@@ -248,7 +248,7 @@ app.post("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) =
     updatedAt: comment.updatedAt,
     user: {
       id: comment.user.id,
-      email: comment.user.email
+      username: comment.user.username
     },
     parentId: comment.parentId
   });
@@ -273,7 +273,7 @@ app.get("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) =>
       user: {
         select: {
           id: true,
-          email: true
+          username: true
         }
       }
     },

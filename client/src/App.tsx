@@ -4,34 +4,34 @@ import { Login } from "./pages/Login";
 import "./App.css";
 
 const TOKEN_KEY = "chapter_a_day_token";
-const EMAIL_KEY = "chapter_a_day_email";
+const USERNAME_KEY = "chapter_a_day_username";
 
 function App() {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem(TOKEN_KEY)
   );
-  const [email, setEmail] = useState<string | null>(
-    localStorage.getItem(EMAIL_KEY)
+  const [username, setUsername] = useState<string | null>(
+    localStorage.getItem(USERNAME_KEY)
   );
 
-  const handleAuthSuccess = (newToken: string, userEmail: string) => {
+  const handleAuthSuccess = (newToken: string, userUsername: string) => {
     localStorage.setItem(TOKEN_KEY, newToken);
-    localStorage.setItem(EMAIL_KEY, userEmail);
+    localStorage.setItem(USERNAME_KEY, userUsername);
     setToken(newToken);
-    setEmail(userEmail);
+    setUsername(userUsername);
   };
 
   const handleLogout = () => {
     localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(EMAIL_KEY);
+    localStorage.removeItem(USERNAME_KEY);
     setToken(null);
-    setEmail(null);
+    setUsername(null);
   };
 
   return (
     <div className="app">
-      {token && email ? (
-        <Dashboard token={token} email={email} onLogout={handleLogout} />
+      {token && username ? (
+        <Dashboard token={token} username={username} onLogout={handleLogout} />
       ) : (
         <Login onAuthSuccess={handleAuthSuccess} />
       )}
