@@ -8,9 +8,13 @@
     "start": "node dist/index.js",
     "prisma": "prisma",
     "seed": "tsx prisma/seed.ts",
+    "test:db:create": "createdb chapteraday_test || true",
+    "test:db:migrate": "TEST_DATABASE_URL=\"postgresql://$(whoami)@localhost:5432/chapteraday_test?schema=public\" npx prisma migrate deploy",
+    "test:db:reset": "dropdb chapteraday_test --if-exists && createdb chapteraday_test && npm run test:db:migrate",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:setup": "npm run test:db:create && npm run test:db:migrate"
   },
   "keywords": [],
   "author": "",

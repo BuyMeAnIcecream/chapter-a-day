@@ -102,11 +102,64 @@ The server will run on `http://localhost:4000` (or the PORT specified in .env).
 
 ## Testing
 
-Run tests with Jest:
+### Test Database Setup
+
+Tests use a **separate test database** to avoid interfering with development data.
+
+**First-time setup:**
+```bash
+# Option 1: Use the setup script (recommended)
+./scripts/setup-test-db.sh
+
+# Option 2: Manual setup
+npm run test:db:create    # Create test database
+npm run test:db:migrate   # Run migrations on test database
+
+# Option 3: Reset test database (drops and recreates)
+npm run test:db:reset
+```
+
+**Configure test database:**
+```bash
+# Create .env.test file (optional, will auto-detect from .env)
+cp .env.test.example .env.test
+# Edit .env.test with your test database URL
+```
+
+The test setup will automatically:
+- Use `TEST_DATABASE_URL` if set in `.env.test`
+- Otherwise, append `_test` to your database name from `DATABASE_URL`
+- Default: `chapteraday_test` database
+
+### Running Tests
+
 ```bash
 npm test              # Run all tests
 npm run test:watch    # Watch mode
 npm run test:coverage # With coverage report
+```
+
+### Switching Between Dev and Test
+
+**Development mode** (uses `chapteraday` database):
+```bash
+npm run dev
+# Uses DATABASE_URL from .env
+```
+
+**Test mode** (uses `chapteraday_test` database):
+```bash
+npm test
+# Automatically uses test database
+```
+
+**Manual database switching:**
+```bash
+# Use dev database
+DATABASE_URL="postgresql://user@localhost:5432/chapteraday?schema=public" npm run dev
+
+# Use test database
+TEST_DATABASE_URL="postgresql://user@localhost:5432/chapteraday_test?schema=public" npm test
 ```
 
 ### Test Coverage
@@ -117,7 +170,7 @@ npm run test:coverage # With coverage report
 - Permission checks (delete own comments only)
 - Error handling and validation
 
-All tests use a test database and are isolated with proper setup/teardown.
+All tests use a test database and are isolated with proper setup/teardown. The test database is cleaned before each test.
 
 ## Database Schema
 

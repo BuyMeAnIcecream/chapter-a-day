@@ -13,4 +13,8 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/__tests__/**',
   ],
+  // Set NODE_ENV to test to ensure test database is used
+  testEnvironmentOptions: {
+    NODE_ENV: 'test',
+  },
 };
