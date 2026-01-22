@@ -72,12 +72,22 @@ npm run dev
 ## Testing
 
 ### Server Tests
+
+**First-time setup** (creates separate test database):
+```bash
+cd server
+npm run test:setup    # Create and migrate test database
+```
+
+**Running tests:**
 ```bash
 cd server
 npm test              # Run all tests
 npm run test:watch    # Watch mode
 npm run test:coverage # With coverage
 ```
+
+**Note:** Tests use a separate `chapteraday_test` database to avoid interfering with development data. See [server README](./server/README.md#testing) for details.
 
 ### Client Tests
 ```bash
