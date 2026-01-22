@@ -182,7 +182,7 @@ describe('Comments API', () => {
           userId: user1.id,
           chapterId: chapter.id
         },
-        include: { user: { select: { id: true, email: true } } }
+        include: { user: { select: { id: true, username: true } } }
       });
 
       const comment2 = await prisma.comment.create({
@@ -191,7 +191,7 @@ describe('Comments API', () => {
           userId: user2.id,
           chapterId: chapter.id
         },
-        include: { user: { select: { id: true, email: true } } }
+        include: { user: { select: { id: true, username: true } } }
       });
 
       const response = await request(app)

@@ -231,7 +231,7 @@ describe('Dashboard Comments', () => {
           updatedAt: '2024-01-01T00:00:00Z',
           user: {
             id: 'user-1',
-            email: mockEmail // Same as logged in user
+            username: mockUsername // Same as logged in user
           },
           parentId: null,
           replies: []
