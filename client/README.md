@@ -1,73 +1,92 @@
-# React + TypeScript + Vite
+# Chapter a Day - Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React frontend for the Chapter a Day application, built with Vite and TypeScript.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Daily Chapter Display**: Shows today's chapter with progress tracking
+- **User Authentication**: Login and registration forms
+- **Commenting System**: 
+  - Comment on chapters
+  - Reply to comments (nested structure)
+  - Delete own comments
+  - View all comments from the community
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Install dependencies:
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Start development server:
+```bash
+npm run dev
 ```
+
+The app will run on `http://localhost:5173` (or the next available port).
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm test` - Run tests with Vitest
+- `npm run test:ui` - Run tests with UI
+- `npm run test:coverage` - Run tests with coverage
+
+## Project Structure
+
+```
+client/
+├── src/
+│   ├── __tests__/      # Test files
+│   ├── pages/          # Page components
+│   │   ├── Login.tsx   # Login/Register page
+│   │   └── Dashboard.tsx # Main dashboard with chapter and comments
+│   ├── api.ts          # API client functions
+│   ├── App.tsx         # Main app component
+│   └── main.tsx        # Entry point
+├── public/             # Static assets
+└── index.html          # HTML template
+```
+
+## API Integration
+
+The client communicates with the backend API at `http://localhost:4000`. All API functions are in `src/api.ts`:
+
+- `registerUser(email, password)` - Register new user
+- `loginUser(email, password)` - Login user
+- `fetchToday(token)` - Get today's chapter
+- `fetchProgress(token)` - Get reading progress
+- `createComment(chapterId, content, token, parentId?)` - Create comment or reply
+- `fetchComments(chapterId, token)` - Get all comments for a chapter
+- `deleteComment(commentId, token)` - Delete own comment
+
+## Testing
+
+Tests are written with Vitest and React Testing Library:
+
+```bash
+npm test              # Run all tests
+npm run test:ui       # Interactive UI mode
+npm run test:coverage # Generate coverage report
+```
+
+### Test Coverage
+- API function mocking and error handling
+- Dashboard component rendering
+- Comment creation and display
+- Nested reply functionality
+- Permission-based UI (delete button visibility)
+- User interactions (forms, buttons, etc.)
+
+## Styling
+
+Styles are in `src/App.css` using modern CSS with:
+- Clean, minimal design
+- Responsive layout
+- Nested comment styling with indentation
+- Form and button styling
+- Error and loading states
