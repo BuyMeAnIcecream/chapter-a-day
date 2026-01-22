@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { fetchToday, fetchProgress } from "../api";
+import { useEffect, useState, FormEvent } from "react";
+import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, type Comment } from "../api";
 
 type Props = {
   token: string;
@@ -10,7 +10,7 @@ type Props = {
 type TodayResponse = {
   date: string;
   progress: { currentChapterIndex: number; totalChapters: number };
-  chapter: { book: string; chapterNumber: number; content: string };
+  chapter: { id: string; book: string; chapterNumber: number; content: string };
 };
 
 export const Dashboard = ({ token, email, onLogout }: Props) => {
@@ -18,6 +18,27 @@ export const Dashboard = ({ token, email, onLogout }: Props) => {
   const [lastDate, setLastDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
+  const [newComment, setNewComment] = useState("");
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState<{ [key: string]: string }>({});
+
+  const loadComments = async (chapterId: string) => {
+    setCommentsLoading(true);
+    setCommentError(null);
+    try {
+      const data = await fetchComments(chapterId, token);
+      setComments(data.comments);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to load comments";
+      setCommentError(message);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -30,6 +51,10 @@ export const Dashboard = ({ token, email, onLogout }: Props) => {
         if (!active) return;
         setToday(todayData);
         setLastDate(progressData.progress?.lastDeliveredDate ?? null);
+        // Load comments for the chapter
+        if (todayData.chapter.id) {
+          loadComments(todayData.chapter.id);
+        }
       } catch (err) {
         if (!active) return;
         const message =
@@ -44,6 +69,119 @@ export const Dashboard = ({ token, email, onLogout }: Props) => {
       active = false;
     };
   }, [token]);
+
+  const handleSubmitComment = async (e: FormEvent, parentId?: string) => {
+    e.preventDefault();
+    if (!today?.chapter.id) return;
+
+    const content = parentId ? replyContent[parentId] : newComment;
+    if (!content || content.trim().length === 0) return;
+
+    try {
+      const comment = await createComment(today.chapter.id, content.trim(), token, parentId);
+      
+      if (parentId) {
+        // Reload comments to get updated nested structure
+        await loadComments(today.chapter.id);
+        setReplyContent({ ...replyContent, [parentId]: "" });
+        setReplyingTo(null);
+      } else {
+        // Reload comments
+        await loadComments(today.chapter.id);
+        setNewComment("");
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to post comment";
+      setCommentError(message);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!today?.chapter.id) return;
+    if (!confirm("Are you sure you want to delete this comment?")) return;
+
+    try {
+      await deleteComment(commentId, token);
+      await loadComments(today.chapter.id);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to delete comment";
+      setCommentError(message);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const renderComment = (comment: Comment, depth: number = 0) => {
+    const isOwner = comment.user.email === email;
+    const isReplying = replyingTo === comment.id;
+
+    return (
+      <div key={comment.id} className="comment" style={{ marginLeft: `${depth * 2}rem` }}>
+        <div className="comment-header">
+          <span className="comment-author">{comment.user.email}</span>
+          <span className="comment-date">{formatDate(comment.createdAt)}</span>
+        </div>
+        <div className="comment-content">{comment.content}</div>
+        <div className="comment-actions">
+          <button
+            type="button"
+            className="text-button comment-action"
+            onClick={() => setReplyingTo(isReplying ? null : comment.id)}
+          >
+            {isReplying ? "Cancel" : "Reply"}
+          </button>
+          {isOwner && (
+            <button
+              type="button"
+              className="text-button comment-action delete-button"
+              onClick={() => handleDeleteComment(comment.id)}
+            >
+              Delete
+            </button>
+          )}
+        </div>
+        {isReplying && (
+          <form
+            className="comment-reply-form"
+            onSubmit={(e) => handleSubmitComment(e, comment.id)}
+          >
+            <textarea
+              value={replyContent[comment.id] || ""}
+              onChange={(e) =>
+                setReplyContent({ ...replyContent, [comment.id]: e.target.value })
+              }
+              placeholder="Write a reply..."
+              rows={3}
+              className="comment-input"
+            />
+            <div className="comment-form-actions">
+              <button type="submit">Post Reply</button>
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => {
+                  setReplyingTo(null);
+                  setReplyContent({ ...replyContent, [comment.id]: "" });
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+        {comment.replies.length > 0 && (
+          <div className="comment-replies">
+            {comment.replies.map((reply) => renderComment(reply, depth + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   if (loading) {
     return <div className="panel">Loading your chapter...</div>;
@@ -86,6 +224,34 @@ export const Dashboard = ({ token, email, onLogout }: Props) => {
           Last delivered:{" "}
           {lastDate ? new Date(lastDate).toISOString().slice(0, 10) : "Today"}
         </div>
+      </div>
+
+      <div className="comments-section">
+        <h3>Comments</h3>
+        {commentError && <div className="error">{commentError}</div>}
+        
+        <form onSubmit={(e) => handleSubmitComment(e)} className="comment-form">
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Add a comment..."
+            rows={3}
+            className="comment-input"
+          />
+          <button type="submit" disabled={!newComment.trim()}>
+            Post Comment
+          </button>
+        </form>
+
+        {commentsLoading ? (
+          <div className="muted">Loading comments...</div>
+        ) : comments.length === 0 ? (
+          <div className="muted">No comments yet. Be the first to comment!</div>
+        ) : (
+          <div className="comments-list">
+            {comments.map((comment) => renderComment(comment))}
+          </div>
+        )}
       </div>
     </div>
   );

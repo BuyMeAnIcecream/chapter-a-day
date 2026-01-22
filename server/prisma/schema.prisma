@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -13,6 +13,7 @@ model User {
   passwordHash String
   createdAt    DateTime  @default(now())
   progress     Progress?
+  comments     Comment[]
 }
 
 model Progress {
@@ -24,9 +25,24 @@ model Progress {
 }
 
 model Chapter {
-  id            String  @id @default(cuid())
-  sequence      Int     @unique
+  id            String    @id @default(cuid())
+  sequence      Int       @unique
   book          String
   chapterNumber Int
   content       String
+  comments      Comment[]
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    String
+  chapterId String
+  parentId  String?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter   Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
 }

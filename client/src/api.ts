@@ -46,7 +46,7 @@ export const fetchToday = async (token: string) => {
   return handleResponse<{
     date: string;
     progress: { currentChapterIndex: number; totalChapters: number };
-    chapter: { book: string; chapterNumber: number; content: string };
+    chapter: { id: string; book: string; chapterNumber: number; content: string };
   }>(response);
 };
 
@@ -58,4 +58,55 @@ export const fetchProgress = async (token: string) => {
     progress: { currentChapterIndex: number; lastDeliveredDate: string | null };
     totalChapters: number;
   }>(response);
+};
+
+export type Comment = {
+  id: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    email: string;
+  };
+  parentId: string | null;
+  replies: Comment[];
+};
+
+export const createComment = async (
+  chapterId: string,
+  content: string,
+  token: string,
+  parentId?: string
+): Promise<Comment> => {
+  const response = await fetch(`${API_BASE}/api/chapters/${chapterId}/comments`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ content, parentId })
+  });
+  return handleResponse<Comment>(response);
+};
+
+export const fetchComments = async (
+  chapterId: string,
+  token: string
+): Promise<{ comments: Comment[] }> => {
+  const response = await fetch(`${API_BASE}/api/chapters/${chapterId}/comments`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return handleResponse<{ comments: Comment[] }>(response);
+};
+
+export const deleteComment = async (
+  commentId: string,
+  token: string
+): Promise<{ success: boolean }> => {
+  const response = await fetch(`${API_BASE}/api/comments/${commentId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return handleResponse<{ success: boolean }>(response);
 };

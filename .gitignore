@@ -52,6 +52,5 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 
-# Prisma
-server/prisma/migrations/
-!server/prisma/migrations/.gitkeep
+# Prisma (keep migrations, ignore generated client)
+server/node_modules/.prisma/

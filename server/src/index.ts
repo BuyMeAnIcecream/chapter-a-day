@@ -160,7 +160,12 @@ app.get("/api/today", authMiddleware, async (req, res) => {
       currentChapterIndex: currentIndex,
       totalChapters
     },
-    chapter
+    chapter: {
+      id: chapter.id,
+      book: chapter.book,
+      chapterNumber: chapter.chapterNumber,
+      content: chapter.content
+    }
   });
 });
 
@@ -176,6 +181,165 @@ app.get("/api/progress", authMiddleware, async (req, res) => {
     progress,
     totalChapters
   });
+});
+
+// Comments endpoints
+app.post("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) => {
+  const userId = (req as AuthRequest).userId;
+  const chapterId = Array.isArray(req.params.chapterId) ? req.params.chapterId[0] : req.params.chapterId;
+  const { content, parentId } = req.body as {
+    content?: string;
+    parentId?: string;
+  };
+
+  if (!content || content.trim().length === 0) {
+    return res.status(400).json({ error: "Comment content is required" });
+  }
+
+  // Verify chapter exists
+  const chapter = await prisma.chapter.findUnique({
+    where: { id: chapterId }
+  });
+
+  if (!chapter) {
+    return res.status(404).json({ error: "Chapter not found" });
+  }
+
+  // If parentId is provided, verify parent comment exists and belongs to same chapter
+  if (parentId) {
+    const parent = await prisma.comment.findUnique({
+      where: { id: parentId }
+    });
+
+    if (!parent) {
+      return res.status(404).json({ error: "Parent comment not found" });
+    }
+
+    if (parent.chapterId !== chapterId) {
+      return res.status(400).json({ error: "Parent comment must belong to the same chapter" });
+    }
+  }
+
+  const comment = await prisma.comment.create({
+    data: {
+      content: content.trim(),
+      userId,
+      chapterId,
+      parentId: parentId || null
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          email: true
+        }
+      }
+    }
+  });
+
+  return res.json({
+    id: comment.id,
+    content: comment.content,
+    createdAt: comment.createdAt,
+    updatedAt: comment.updatedAt,
+    user: {
+      id: comment.user.id,
+      email: comment.user.email
+    },
+    parentId: comment.parentId
+  });
+});
+
+app.get("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) => {
+  const chapterId = Array.isArray(req.params.chapterId) ? req.params.chapterId[0] : req.params.chapterId;
+
+  // Verify chapter exists
+  const chapter = await prisma.chapter.findUnique({
+    where: { id: chapterId }
+  });
+
+  if (!chapter) {
+    return res.status(404).json({ error: "Chapter not found" });
+  }
+
+  // Get all comments for this chapter
+  const comments = await prisma.comment.findMany({
+    where: { chapterId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          email: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "asc"
+    }
+  });
+
+  // Transform to nested structure
+  const commentMap = new Map<string, any>();
+  const rootComments: any[] = [];
+
+  // First pass: create map and identify root comments
+  comments.forEach((comment: any) => {
+    const commentData = {
+      id: comment.id,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+      user: {
+        id: comment.user.id,
+        email: comment.user.email
+      },
+      parentId: comment.parentId,
+      replies: []
+    };
+
+    commentMap.set(comment.id, commentData);
+
+    if (!comment.parentId) {
+      rootComments.push(commentData);
+    }
+  });
+
+  // Second pass: nest replies under parents
+  comments.forEach((comment: any) => {
+    if (comment.parentId) {
+      const parent = commentMap.get(comment.parentId);
+      const child = commentMap.get(comment.id);
+      if (parent && child) {
+        parent.replies.push(child);
+      }
+    }
+  });
+
+  return res.json({ comments: rootComments });
+});
+
+app.delete("/api/comments/:commentId", authMiddleware, async (req, res) => {
+  const userId = (req as AuthRequest).userId;
+  const commentId = Array.isArray(req.params.commentId) ? req.params.commentId[0] : req.params.commentId;
+
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId }
+  });
+
+  if (!comment) {
+    return res.status(404).json({ error: "Comment not found" });
+  }
+
+  if (comment.userId !== userId) {
+    return res.status(403).json({ error: "You can only delete your own comments" });
+  }
+
+  // Delete comment (cascade will handle replies)
+  await prisma.comment.delete({
+    where: { id: commentId }
+  });
+
+  return res.json({ success: true });
 });
 
 app.listen(PORT, () => {
