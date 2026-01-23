@@ -1,4 +1,21 @@
-const API_BASE = "http://localhost:4000";
+// Use environment variable or detect hostname for mobile access
+const getApiBase = () => {
+  // Check if we're in development and have a VITE_API_URL
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // In development, use the current hostname (works for localhost and network IP)
+  if (import.meta.env.DEV) {
+    const hostname = window.location.hostname;
+    return `http://${hostname}:4000`;
+  }
+  
+  // Production fallback
+  return "http://localhost:4000";
+};
+
+const API_BASE = getApiBase();
 
 type AuthResponse = {
   token: string;

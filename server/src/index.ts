@@ -13,7 +13,33 @@ const prisma = new PrismaClient();
 const PORT = Number(process.env.PORT || 4000);
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 
-app.use(cors({ origin: "http://localhost:5173", credentials: false }));
+// Allow CORS from localhost and local network (for mobile access)
+const allowedOrigins = [
+  "http://localhost:5173",
+  /^http:\/\/192\.168\.\d+\.\d+:5173$/, // Allow any local network IP
+  /^http:\/\/10\.\d+\.\d+\.\d+:5173$/, // Allow 10.x.x.x networks
+  /^http:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+:5173$/ // Allow 172.16-31.x.x networks
+];
+
+app.use(cors({ 
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin matches allowed patterns
+    if (allowedOrigins.some(pattern => {
+      if (typeof pattern === 'string') {
+        return origin === pattern;
+      }
+      return pattern.test(origin);
+    })) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: false 
+}));
 app.use(express.json());
 
 type AuthRequest = express.Request & { userId?: string };
@@ -351,7 +377,9 @@ export { app };
 
 // Only start server if this file is run directly
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server listening on http://localhost:${PORT}`);
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server listening on http://0.0.0.0:${PORT}`);
+    console.log(`Access from this machine: http://localhost:${PORT}`);
+    console.log(`Access from network: http://192.168.1.68:${PORT}`);
   });
 }
