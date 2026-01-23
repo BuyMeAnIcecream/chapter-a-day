@@ -1,6 +1,6 @@
 // Use environment variable or detect hostname for mobile access
 const getApiBase = () => {
-  // Check if we're in development and have a VITE_API_URL
+  // Check if we have a VITE_API_URL (set at build time)
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
@@ -11,8 +11,16 @@ const getApiBase = () => {
     return `http://${hostname}:4000`;
   }
   
-  // Production fallback
-  return "http://localhost:4000";
+  // In production (Docker), use the same hostname with port 4000
+  // This assumes the server is accessible on the same hostname
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  // If running on port 80, assume server is on 4000
+  if (window.location.port === '' || window.location.port === '80') {
+    return `${protocol}//${hostname}:4000`;
+  }
+  // Otherwise use the same port (for development)
+  return `${protocol}//${hostname}:4000`;
 };
 
 const API_BASE = getApiBase();

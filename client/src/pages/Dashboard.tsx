@@ -1,4 +1,4 @@
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, type Comment } from "../api";
 
 type Props = {
@@ -78,7 +78,7 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
     if (!content || content.trim().length === 0) return;
 
     try {
-      const comment = await createComment(today.chapter.id, content.trim(), token, parentId);
+      await createComment(today.chapter.id, content.trim(), token, parentId);
       
       if (parentId) {
         // Reload comments to get updated nested structure

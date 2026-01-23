@@ -8,9 +8,5 @@ export default defineConfig({
     host: '0.0.0.0', // Allow access from network
     port: 5173,
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/__tests__/setup.ts',
-  },
+  // Test configuration is handled by vitest.config.ts
 })

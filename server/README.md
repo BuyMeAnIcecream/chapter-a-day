@@ -48,7 +48,30 @@ npx prisma migrate dev
 npm run seed
 ```
 
-6. Start the development server:
+6. (Optional) Import chapter content from PDF:
+```bash
+# Place your PDF file at: book/study-bible.pdf
+# The script will extract chapters from pages 3076-3943
+npm run import:pdf
+```
+
+**Note:** The PDF import script (`scripts/import-pdf.ts`) extracts chapter content from a PDF file. The script includes:
+
+1. **Link-based extraction (framework)**: Attempts to use PDF hyperlinks to navigate the structure (TOC → Book → Chapter → Verses → Content). However, `pdf-parse` link extraction may require a browser environment or different PDF library, so this currently falls back to text-based extraction.
+
+2. **Text-based extraction (active)**: Extracts text and uses pattern matching to:
+   - Skip navigation/index pages
+   - Detect book boundaries
+   - Detect chapter boundaries using verse patterns
+   - Extract chapter content
+
+The script will automatically try link-based extraction first, then fall back to text-based extraction.
+
+**Troubleshooting:**
+- If chapters are not detected correctly, you may need to adjust the chapter detection patterns in `scripts/import-pdf.ts` to match your PDF's format.
+- For link-based extraction to work, you may need to use a different PDF library (like `pdfjs-dist` in a browser environment) or manually map the link structure.
+
+7. Start the development server:
 ```bash
 npm run dev
 ```
