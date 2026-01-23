@@ -54,3 +54,6 @@ Thumbs.db
 
 # Prisma (keep migrations, ignore generated client)
 server/node_modules/.prisma/
+
+# Book files (PDF and text files)
+book/
