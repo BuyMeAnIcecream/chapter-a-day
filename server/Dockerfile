@@ -26,7 +26,7 @@ COPY server/package*.json ./
 COPY server/tsconfig.json ./
 COPY server/src ./src
 # Copy book and scripts for KJV import
-COPY book ./book
+COPY server/book ./book
 COPY server/scripts ./scripts
 RUN npm run build
 

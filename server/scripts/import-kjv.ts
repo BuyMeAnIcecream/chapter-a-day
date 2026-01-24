@@ -4,7 +4,7 @@ import path from 'path';
 
 const prisma = new PrismaClient();
 
-const KJV_FILE_PATH = path.join(__dirname, '../../book/kjv.txt');
+const KJV_FILE_PATH = path.join(__dirname, '../book/kjv.txt');
 
 // New Testament books in order
 const NEW_TESTAMENT_BOOKS = [

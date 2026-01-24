@@ -14,5 +14,4 @@ build
 coverage
 .nyc_output
 *.log
-book/
 ios/

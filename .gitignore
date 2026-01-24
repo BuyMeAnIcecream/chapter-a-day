@@ -56,7 +56,7 @@ Thumbs.db
 server/node_modules/.prisma/
 
 # Book files (PDF and text files)
-book/
+
 
 # iOS - exclude entire directory
 ios/
