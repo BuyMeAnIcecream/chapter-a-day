@@ -25,6 +25,9 @@ COPY --from=prisma /app/node_modules/.prisma ./node_modules/.prisma
 COPY server/package*.json ./
 COPY server/tsconfig.json ./
 COPY server/src ./src
+# Copy book and scripts for KJV import
+COPY book ./book
+COPY server/scripts ./scripts
 RUN npm run build
 
 # Production image
@@ -44,8 +47,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 COPY server/prisma ./prisma
 # Copy book directory and scripts for KJV import (manual run)
-COPY book ./book
-COPY server/scripts ./scripts
+COPY --from=builder /app/book ./book
+COPY --from=builder /app/scripts ./scripts
 
 # Set permissions
 RUN chown -R nodejs:nodejs /app
