@@ -54,4 +54,4 @@ EXPOSE 4000
 ENV PORT=4000
 
 # Run migrations and start the server
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "echo 'Running database migrations...' && npx prisma migrate deploy && echo 'Migrations completed successfully!' && echo 'Starting server...' && node dist/index.js"]
