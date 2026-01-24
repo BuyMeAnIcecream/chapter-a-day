@@ -49,6 +49,11 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Healthcheck endpoint (no auth required)
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 type AuthRequest = express.Request & { userId?: string };
 
 const getDateKey = (date: Date) =>
