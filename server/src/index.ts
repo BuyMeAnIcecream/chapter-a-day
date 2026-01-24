@@ -13,31 +13,38 @@ const prisma = new PrismaClient();
 const PORT = Number(process.env.PORT || 4000);
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 
-// Allow CORS from localhost and local network (for mobile access)
+// Allow CORS from localhost, local network, and Railway domains
 const allowedOrigins = [
   "http://localhost:5173",
   /^http:\/\/192\.168\.\d+\.\d+:5173$/, // Allow any local network IP
   /^http:\/\/10\.\d+\.\d+\.\d+:5173$/, // Allow 10.x.x.x networks
-  /^http:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+:5173$/ // Allow 172.16-31.x.x networks
+  /^http:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+:5173$/, // Allow 172.16-31.x.x networks
+  /\.railway\.app$/, // Allow Railway domains
+  /\.up\.railway\.app$/ // Allow Railway preview domains
 ];
 
+// In production, allow all origins (for fun project to show friends)
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(cors({ 
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin matches allowed patterns
-    if (allowedOrigins.some(pattern => {
-      if (typeof pattern === 'string') {
-        return origin === pattern;
-      }
-      return pattern.test(origin);
-    })) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: isProduction 
+    ? true // Allow all origins in production
+    : (origin, callback) => {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+        
+        // Check if origin matches allowed patterns
+        if (allowedOrigins.some(pattern => {
+          if (typeof pattern === 'string') {
+            return origin === pattern;
+          }
+          return pattern.test(origin);
+        })) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
   credentials: false 
 }));
 app.use(express.json());
