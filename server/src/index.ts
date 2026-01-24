@@ -17,6 +17,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 // This allows the client to make requests from any domain
 app.use(cors({ 
   origin: true, // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false 
 }));
 app.use(express.json());
