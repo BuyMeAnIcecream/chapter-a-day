@@ -36,6 +36,14 @@ const makeContent = (book: string, chapter: number) =>
   `${book} ${chapter}\n\nThis is placeholder content for ${book} chapter ${chapter}.`;
 
 async function main() {
+  // Check if chapters already exist
+  const existingChapters = await prisma.chapter.count();
+  if (existingChapters > 0) {
+    console.log(`Database already has ${existingChapters} chapters. Skipping seed.`);
+    return;
+  }
+
+  console.log('Database is empty. Seeding chapters...');
   await prisma.chapter.deleteMany();
 
   let sequence = 1;
