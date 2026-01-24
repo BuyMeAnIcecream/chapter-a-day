@@ -19,31 +19,40 @@ This guide will help you deploy your Chapter-a-Day app to Railway.
 
 1. In your Railway project, click **"New Service"** → **"GitHub Repo"**
 2. Select your `chapter-a-day` repository
-3. Railway will try to auto-detect - it might show an error, that's okay!
+3. Railway will try to auto-detect - **you'll see a Railpack error, that's expected!**
 4. Click on the service you just created
 5. Go to **"Settings"** tab
 6. Under **"Source"**, set **Root Directory** to: `server`
-7. Under **"Build"**, make sure it's set to use **Dockerfile**
-8. Go to **"Variables"** tab and add:
+7. Under **"Build"** section:
+   - Click the dropdown that says **"Nixpacks"** or **"Railpack"**
+   - Change it to **"Dockerfile"**
+   - The Dockerfile path should auto-fill as `Dockerfile` (which is correct since root is now `server`)
+8. Click **"Save"** or the changes will auto-save
+9. Go to **"Variables"** tab and add:
    - `DATABASE_URL` = (paste the PostgreSQL connection string from Step 1)
    - `JWT_SECRET` = (generate a random secret, e.g., use `openssl rand -base64 32`)
    - `PORT` = `4000`
    - `NODE_ENV` = `production`
-9. Railway will automatically build and deploy using `server/Dockerfile`
-10. Once deployed, go to **"Settings"** → **"Networking"** and copy the **public URL** (e.g., `https://your-server.railway.app`)
+10. Railway will automatically trigger a new build using the Dockerfile
+11. Once deployed, go to **"Settings"** → **"Networking"** and copy the **public URL** (e.g., `https://your-server.railway.app`)
 
 ## Step 3: Deploy the Client
 
 1. In your Railway project, click **"New Service"** → **"GitHub Repo"**
 2. Select the same `chapter-a-day` repository
-3. Click on the service you just created
-4. Go to **"Settings"** tab
-5. Under **"Source"**, set **Root Directory** to: `client`
-6. Under **"Build"**, make sure it's set to use **Dockerfile**
-7. Go to **"Variables"** tab and add:
+3. Railway will try to auto-detect - **you'll see a Railpack error again, that's expected!**
+4. Click on the service you just created
+5. Go to **"Settings"** tab
+6. Under **"Source"**, set **Root Directory** to: `client`
+7. Under **"Build"** section:
+   - Click the dropdown that says **"Nixpacks"** or **"Railpack"**
+   - Change it to **"Dockerfile"**
+   - The Dockerfile path should auto-fill as `Dockerfile`
+8. Click **"Save"** or the changes will auto-save
+9. Go to **"Variables"** tab and add:
    - `VITE_API_URL` = (your server URL from Step 2, e.g., `https://your-server.railway.app`)
-8. Railway will build and deploy using `client/Dockerfile`
-9. Once deployed, go to **"Settings"** → **"Networking"** and copy the **public URL** for your client (e.g., `https://your-client.railway.app`)
+10. Railway will automatically trigger a new build using the Dockerfile
+11. Once deployed, go to **"Settings"** → **"Networking"** and copy the **public URL** for your client (e.g., `https://your-client.railway.app`)
 
 ## Step 4: Seed the Database
 
@@ -92,7 +101,9 @@ If you need to update the client's API URL after deployment:
 
 ## Troubleshooting
 
+- **"Railpack could not determine how to build"**: This is normal! Just go to Settings → Build and change from "Nixpacks" to "Dockerfile", then set the Root Directory
 - **Build fails**: Check the build logs in Railway dashboard
+- **Dockerfile not found**: Make sure Root Directory is set correctly (`server` or `client`)
 - **Database connection errors**: Verify `DATABASE_URL` is correct in server variables
 - **CORS errors**: The server is configured to allow all origins in production
 - **Client can't reach server**: Verify `VITE_API_URL` matches your server's public URL
