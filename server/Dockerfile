@@ -43,6 +43,9 @@ COPY --from=prisma /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 COPY server/prisma ./prisma
+# Copy book directory and scripts for KJV import (manual run)
+COPY book ./book
+COPY server/scripts ./scripts
 
 # Set permissions
 RUN chown -R nodejs:nodejs /app
