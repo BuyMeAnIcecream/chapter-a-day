@@ -4,14 +4,14 @@ FROM node:20-alpine AS base
 # Install dependencies
 FROM base AS deps
 WORKDIR /app
-COPY client/package*.json ./
+COPY package*.json ./
 RUN npm ci
 
 # Build the application
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY client ./
+COPY . ./
 
 # Build argument for API URL
 ARG VITE_API_URL=http://localhost:4000
@@ -27,7 +27,7 @@ WORKDIR /app
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration
-COPY client/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
