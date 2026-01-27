@@ -299,6 +299,9 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
           <p className="muted" style={{ fontSize: "0.875rem" }}>
             Version {version}
           </p>
+          <p className="muted" style={{ fontSize: "0.75rem", marginTop: "0.5rem" }}>
+            Developed and maintained by John Smith
+          </p>
         </div>
       )}
     </div>
