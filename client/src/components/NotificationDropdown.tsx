@@ -6,10 +6,11 @@ type Props = {
   loading: boolean;
   onMarkAsRead: (notificationId: string) => void;
   onMarkAllAsRead: () => void;
+  onNavigateToComment?: (commentId: string) => void;
 };
 
 export const NotificationDropdown = forwardRef<HTMLDivElement, Props>(
-  ({ notifications, loading, onMarkAsRead, onMarkAllAsRead }, ref) => {
+  ({ notifications, loading, onMarkAsRead, onMarkAllAsRead, onNavigateToComment }, ref) => {
     const formatTimeAgo = (dateString: string) => {
       const date = new Date(dateString);
       const now = new Date();
@@ -60,6 +61,9 @@ export const NotificationDropdown = forwardRef<HTMLDivElement, Props>(
                   onClick={() => {
                     if (!notification.read) {
                       onMarkAsRead(notification.id);
+                    }
+                    if (onNavigateToComment) {
+                      onNavigateToComment(notification.commentId);
                     }
                   }}
                 >

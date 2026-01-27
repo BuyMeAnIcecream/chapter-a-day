@@ -124,12 +124,29 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
     return date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const scrollToComment = (commentId: string) => {
+    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+    if (commentElement) {
+      commentElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Add highlight effect
+      commentElement.classList.add("comment-highlight");
+      setTimeout(() => {
+        commentElement.classList.remove("comment-highlight");
+      }, 2000);
+    }
+  };
+
   const renderComment = (comment: Comment, depth: number = 0) => {
     const isOwner = comment.user.username === username;
     const isReplying = replyingTo === comment.id;
 
     return (
-      <div key={comment.id} className="comment" style={{ marginLeft: `${depth * 2}rem` }}>
+      <div 
+        key={comment.id} 
+        className="comment" 
+        data-comment-id={comment.id}
+        style={{ marginLeft: `${depth * 2}rem` }}
+      >
         <div className="comment-header">
           <span className="comment-author">{comment.user.username}</span>
           <span className="comment-date">{formatDate(comment.createdAt)}</span>
@@ -220,7 +237,13 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
           <p className="subtitle">{username}</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          {userId && <NotificationBell token={token} userId={userId} />}
+          {userId && (
+            <NotificationBell 
+              token={token} 
+              userId={userId}
+              onNavigateToComment={scrollToComment}
+            />
+          )}
           <button onClick={onLogout} className="text-button">
             Log out
           </button>

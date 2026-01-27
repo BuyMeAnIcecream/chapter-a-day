@@ -460,3 +460,24 @@ button:disabled {
   color: #6b7280;
   font-size: 0.875rem;
 }
+
+/* Comment highlight animation */
+.comment-highlight {
+  animation: highlightComment 2s ease-in-out;
+  border-left-color: #2563eb !important;
+}
+
+@keyframes highlightComment {
+  0% {
+    background-color: #dbeafe;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+  }
+  50% {
+    background-color: #eff6ff;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  }
+  100% {
+    background-color: #f8fafc;
+    box-shadow: none;
+  }
+}
