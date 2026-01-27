@@ -8,6 +8,7 @@
     "start": "node dist/index.js",
     "prisma": "prisma",
     "seed": "tsx prisma/seed.ts",
+    "update:version": "tsx scripts/update-version.ts",
     "import:pdf": "tsx scripts/import-pdf.ts",
     "import:kjv": "tsx scripts/import-kjv.ts",
     "test:db:create": "createdb chapteraday_test || true",
