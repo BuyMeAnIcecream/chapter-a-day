@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  const latestVersion = "1.1.0";
+  const latestVersion = "1.1.1";
   
   const existingVersion = await prisma.appConfig.findUnique({
     where: { key: "version" }
