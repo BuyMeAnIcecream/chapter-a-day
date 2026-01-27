@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, fetchVersion, fetchMe, type Comment } from "../api";
 import { CommentContent } from "../components/CommentContent";
 import { NotificationBell } from "../components/NotificationBell";
-import { Login } from "./Login";
+import { LoginModal } from "../components/LoginModal";
 
 type Props = {
   token: string | null;
@@ -30,6 +30,7 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
   const [replyContent, setReplyContent] = useState<{ [key: string]: string }>({});
   const [version, setVersion] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const loadComments = async (chapterId: string) => {
     setCommentsLoading(true);
@@ -293,13 +294,17 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
   }
 
   return (
-    <div className="panel">
-      {!token && (
-        <div style={{ marginBottom: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px", border: "1px solid #e0e0e0" }}>
-          <Login onAuthSuccess={onAuthSuccess} />
-        </div>
-      )}
-      <div className="header">
+    <>
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onAuthSuccess={(newToken, newUsername) => {
+          onAuthSuccess(newToken, newUsername);
+          setShowLoginModal(false);
+        }}
+      />
+      <div className="panel">
+        <div className="header">
         <div>
           <h1>{token ? "Welcome back" : "Chapter a Day"}</h1>
           {username && <p className="subtitle">{username}</p>}
@@ -342,27 +347,24 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
         <h3>Comments</h3>
         {commentError && <div className="error">{commentError}</div>}
         
-        {!token && (
-          <div style={{ padding: "1rem", backgroundColor: "#fff3cd", borderRadius: "8px", marginBottom: "1rem", border: "1px solid #ffc107" }}>
-            <p style={{ margin: 0, color: "#856404" }}>
-              Please log in to post a comment.
-            </p>
-          </div>
-        )}
-        
         <form onSubmit={(e) => handleSubmitComment(e)} className="comment-form">
           <textarea
             value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder={token ? "Add a comment..." : "Log in to add a comment..."}
-            rows={3}
-            className="comment-input"
-            disabled={!token}
+            onChange={(e) => {
+              setNewComment(e.target.value);
+              // Show login modal when user starts typing without being logged in
+              if (!token && e.target.value.trim().length > 0) {
+                handleLoginPrompt();
+              }
+            }}
             onFocus={() => {
               if (!token) {
                 handleLoginPrompt();
               }
             }}
+            placeholder="Add a comment..."
+            rows={3}
+            className="comment-input"
           />
           <button type="submit" disabled={!newComment.trim() || !token}>
             Post Comment
