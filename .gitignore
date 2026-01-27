@@ -56,6 +56,8 @@ Thumbs.db
 server/node_modules/.prisma/
 
 # Book files (PDF and text files)
+# Allow KJV text file - this is required for the app
+!server/book/kjv.txt
 
 
 # iOS - exclude entire directory

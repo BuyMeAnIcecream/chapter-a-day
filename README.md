@@ -55,8 +55,12 @@ cp .env.example .env
 # Edit .env with your PostgreSQL connection string
 npx prisma migrate dev
 npm run seed
+# Import actual chapter content from KJV text file
+npm run import:kjv
 npm run dev
 ```
+
+**Note:** The seed script creates placeholder chapters. Run `npm run import:kjv` to populate with actual Bible content from `book/kjv.txt`. The seed script is safe - it won't overwrite existing chapters with real content.
 
 3. **Set up the client** (in a new terminal)
 ```bash
@@ -68,6 +72,20 @@ npm run dev
 4. **Access the application**
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:4000
+
+**Using Docker Compose (Recommended):**
+```bash
+# Start all services with persistent database
+docker-compose -f docker-compose.dev.yml up -d
+
+# Run migrations and seed (first time only)
+docker-compose -f docker-compose.dev.yml exec server npx prisma migrate dev
+docker-compose -f docker-compose.dev.yml exec server npm run seed
+docker-compose -f docker-compose.dev.yml exec server npm run import:kjv
+
+# Database data persists in Docker volume - survives container restarts
+# To completely reset (⚠️ deletes all data): docker-compose -f docker-compose.dev.yml down -v
+```
 
 ## Testing
 

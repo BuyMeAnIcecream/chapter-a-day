@@ -39,12 +39,27 @@ async function main() {
   // Check if chapters already exist
   const existingChapters = await prisma.chapter.count();
   if (existingChapters > 0) {
-    console.log(`Database already has ${existingChapters} chapters. Skipping seed.`);
-    return;
+    // Check if chapters have real content (not placeholder)
+    const sampleChapter = await prisma.chapter.findFirst({
+      select: { content: true }
+    });
+    
+    const hasRealContent = sampleChapter && 
+      !sampleChapter.content.includes('This is placeholder content');
+    
+    if (hasRealContent) {
+      console.log(`Database already has ${existingChapters} chapters with real content. Skipping seed to preserve data.`);
+      console.log('To re-import KJV content, use: npm run import:kjv');
+      return;
+    } else {
+      console.log(`Database has ${existingChapters} placeholder chapters. Skipping seed.`);
+      console.log('To import real content, use: npm run import:kjv');
+      return;
+    }
   }
 
-  console.log('Database is empty. Seeding chapters...');
-  await prisma.chapter.deleteMany();
+  console.log('Database is empty. Seeding placeholder chapters...');
+  // Note: We don't delete here since we've confirmed the database is empty
 
   let sequence = 1;
   const records = newTestamentBooks.flatMap(({ book, chapters }) => {

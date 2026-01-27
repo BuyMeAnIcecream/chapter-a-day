@@ -302,7 +302,7 @@ app.get("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) =>
       updatedAt: comment.updatedAt,
       user: {
         id: comment.user.id,
-        email: comment.user.email
+        username: comment.user.username
       },
       parentId: comment.parentId,
       replies: []
