@@ -90,10 +90,10 @@ async function main() {
       update: {},
       create: {
         key: "version",
-        value: "1.0.0"
+        value: "1.1.0"
       }
     });
-    console.log('Initialized version: 1.0.0');
+    console.log('Initialized version: 1.1.0');
   }
 }
 
