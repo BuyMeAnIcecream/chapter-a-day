@@ -137,6 +137,8 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
   };
 
   const renderComment = (comment: Comment, depth: number = 0) => {
+    if (!today) return null;
+    
     const isOwner = comment.user.username === username;
     const isReplying = replyingTo === comment.id;
 
@@ -300,7 +302,7 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
             Version {version}
           </p>
           <p className="muted" style={{ fontSize: "0.75rem", marginTop: "0.5rem" }}>
-            Developed and maintained by John Smith
+            Developed and maintained by Christ's silliest  Smith
           </p>
         </div>
       )}
