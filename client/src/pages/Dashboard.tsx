@@ -48,8 +48,7 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
   };
 
   const handleLoginPrompt = () => {
-    // Scroll to top to show login form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setShowLoginModal(true);
   };
 
   useEffect(() => {
@@ -309,19 +308,25 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
             <h1>{token ? "Welcome back" : "Chapter a Day"}</h1>
             {username && <p className="subtitle">{username}</p>}
           </div>
-          {token && (
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              {userId && (
-                <NotificationBell 
-                  token={token} 
-                  onNavigateToComment={scrollToComment}
-                />
-              )}
-              <button onClick={onLogout} className="text-button">
-                Log out
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            {token ? (
+              <>
+                {userId && (
+                  <NotificationBell 
+                    token={token} 
+                    onNavigateToComment={scrollToComment}
+                  />
+                )}
+                <button onClick={onLogout} className="text-button">
+                  Log out
+                </button>
+              </>
+            ) : (
+              <button onClick={handleLoginPrompt} className="text-button">
+                Log in
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       <div className="card">
         <h2>
