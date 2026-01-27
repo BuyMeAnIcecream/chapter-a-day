@@ -242,7 +242,6 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
           {userId && (
             <NotificationBell 
               token={token} 
-              userId={userId}
               onNavigateToComment={scrollToComment}
             />
           )}

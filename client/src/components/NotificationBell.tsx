@@ -5,11 +5,10 @@ import hornIcon from "../assets/horn-icon.svg";
 
 type Props = {
   token: string;
-  userId: string;
   onNavigateToComment?: (commentId: string) => void;
 };
 
-export const NotificationBell = ({ token, userId, onNavigateToComment }: Props) => {
+export const NotificationBell = ({ token, onNavigateToComment }: Props) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
