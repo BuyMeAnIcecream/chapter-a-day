@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, type Comment } from "../api";
+import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, fetchVersion, type Comment } from "../api";
 
 type Props = {
   token: string;
@@ -24,6 +24,7 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState<{ [key: string]: string }>({});
+  const [version, setVersion] = useState<string | null>(null);
 
   const loadComments = async (chapterId: string) => {
     setCommentsLoading(true);
@@ -44,13 +45,15 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
     let active = true;
     const load = async () => {
       try {
-        const [todayData, progressData] = await Promise.all([
+        const [todayData, progressData, versionData] = await Promise.all([
           fetchToday(token),
-          fetchProgress(token)
+          fetchProgress(token),
+          fetchVersion()
         ]);
         if (!active) return;
         setToday(todayData);
         setLastDate(progressData.progress?.lastDeliveredDate ?? null);
+        setVersion(versionData.version);
         // Load comments for the chapter
         if (todayData.chapter.id) {
           loadComments(todayData.chapter.id);
@@ -253,6 +256,13 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
           </div>
         )}
       </div>
+      {version && (
+        <div style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid #e0e0e0", textAlign: "center" }}>
+          <p className="muted" style={{ fontSize: "0.875rem" }}>
+            Version {version}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

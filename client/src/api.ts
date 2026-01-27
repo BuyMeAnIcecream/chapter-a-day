@@ -135,3 +135,8 @@ export const deleteComment = async (
   });
   return handleResponse<{ success: boolean }>(response);
 };
+
+export const fetchVersion = async (): Promise<{ version: string }> => {
+  const response = await fetch(`${API_BASE}/api/version`);
+  return handleResponse<{ version: string }>(response);
+};

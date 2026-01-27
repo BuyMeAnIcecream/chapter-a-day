@@ -78,6 +78,23 @@ async function main() {
 
   await prisma.chapter.createMany({ data: records });
   console.log(`Seeded ${records.length} chapters.`);
+  
+  // Initialize version if it doesn't exist
+  const existingVersion = await prisma.appConfig.findUnique({
+    where: { key: "version" }
+  });
+  
+  if (!existingVersion) {
+    await prisma.appConfig.upsert({
+      where: { key: "version" },
+      update: {},
+      create: {
+        key: "version",
+        value: "1.0.0"
+      }
+    });
+    console.log('Initialized version: 1.0.0');
+  }
 }
 
 main()

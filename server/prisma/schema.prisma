@@ -46,3 +46,9 @@ model Comment {
   parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comment[] @relation("CommentReplies")
 }
+
+model AppConfig {
+  key       String   @id
+  value     String
+  updatedAt DateTime  @updatedAt
+}

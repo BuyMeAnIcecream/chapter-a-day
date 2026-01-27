@@ -329,6 +329,21 @@ app.get("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) =>
   return res.json({ comments: rootComments });
 });
 
+// Get app version (public endpoint)
+app.get("/api/version", async (req, res) => {
+  try {
+    const config = await prisma.appConfig.findUnique({
+      where: { key: "version" }
+    });
+    
+    const version = config?.value || "1.0.0";
+    return res.json({ version });
+  } catch (error) {
+    console.error("Error fetching version:", error);
+    return res.json({ version: "1.0.0" }); // Fallback version
+  }
+});
+
 app.delete("/api/comments/:commentId", authMiddleware, async (req, res) => {
   const userId = (req as AuthRequest).userId;
   const commentId = Array.isArray(req.params.commentId) ? req.params.commentId[0] : req.params.commentId;
