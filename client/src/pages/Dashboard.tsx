@@ -302,7 +302,7 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
             Version {version}
           </p>
           <p className="muted" style={{ fontSize: "0.75rem", marginTop: "0.5rem" }}>
-            Developed and maintained by Christ's silliest  Smith
+            Developed by Christ's silliest goose Anton Starodub
           </p>
         </div>
       )}
