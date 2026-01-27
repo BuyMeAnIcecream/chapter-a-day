@@ -31,10 +31,23 @@ type AuthResponse = {
 };
 
 const handleResponse = async <T>(response: Response): Promise<T> => {
-  const data = await response.json().catch(() => ({}));
+  let data: any = {};
+  try {
+    const text = await response.text();
+    if (text) {
+      data = JSON.parse(text);
+    }
+  } catch {
+    // If response isn't JSON, data stays as {}
+  }
+  
   if (!response.ok) {
     const message =
-      typeof data?.error === "string" ? data.error : "Request failed";
+      typeof data?.error === "string" 
+        ? data.error 
+        : response.status === 0 
+          ? "Unable to connect to server. Please check if the server is running."
+          : `Request failed (${response.status})`;
     throw new Error(message);
   }
   return data as T;
