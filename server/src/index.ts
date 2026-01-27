@@ -31,6 +31,20 @@ const getDateKey = (date: Date) =>
 const getStartOfDayUtc = (dateKey: string) =>
   new Date(`${dateKey}T00:00:00.000Z`);
 
+// Start date for chapter delivery - all users see the same chapter on the same day
+// This is the date when chapter 1 was first delivered
+const CHAPTER_DELIVERY_START_DATE = new Date("2026-01-01T00:00:00.000Z");
+
+const getDaysSinceStart = (date: Date): number => {
+  const start = new Date(CHAPTER_DELIVERY_START_DATE);
+  start.setUTCHours(0, 0, 0, 0);
+  const current = new Date(date);
+  current.setUTCHours(0, 0, 0, 0);
+  const diffTime = current.getTime() - start.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return Math.max(0, diffDays);
+};
+
 const authMiddleware: express.RequestHandler = (req, res, next) => {
   const header = req.headers.authorization;
   if (!header) {
@@ -117,9 +131,11 @@ app.get("/api/me", authMiddleware, async (req, res) => {
 
 app.get("/api/today", authMiddleware, async (req, res) => {
   const userId = (req as AuthRequest).userId;
-  const todayKey = getDateKey(new Date());
+  const today = new Date();
+  const todayKey = getDateKey(today);
 
-  const progress = await prisma.progress.findUnique({
+  // Ensure user has progress record
+  let progress = await prisma.progress.findUnique({
     where: { userId }
   });
 
@@ -132,29 +148,29 @@ app.get("/api/today", authMiddleware, async (req, res) => {
     return res.status(500).json({ error: "Chapter data not seeded" });
   }
 
+  // Calculate which chapter should be shown today based on days since start date
+  // All users see the same chapter on the same day
+  const daysSinceStart = getDaysSinceStart(today);
+  const todayChapterIndex = Math.min(daysSinceStart + 1, totalChapters);
+
+  // Update user's progress to reflect they've seen up to today's chapter
+  // This is for tracking purposes, but doesn't affect which chapter is shown
   const lastKey = progress.lastDeliveredDate
     ? getDateKey(progress.lastDeliveredDate)
     : null;
 
-  let currentIndex = progress.currentChapterIndex;
   if (!lastKey || lastKey < todayKey) {
-    if (lastKey) {
-      currentIndex = Math.min(currentIndex + 1, totalChapters);
-    } else {
-      currentIndex = Math.max(1, Math.min(currentIndex, totalChapters));
-    }
-
     await prisma.progress.update({
       where: { userId },
       data: {
-        currentChapterIndex: currentIndex,
+        currentChapterIndex: todayChapterIndex,
         lastDeliveredDate: getStartOfDayUtc(todayKey)
       }
     });
   }
 
   const chapter = await prisma.chapter.findUnique({
-    where: { sequence: currentIndex }
+    where: { sequence: todayChapterIndex }
   });
 
   if (!chapter) {
@@ -164,7 +180,7 @@ app.get("/api/today", authMiddleware, async (req, res) => {
   return res.json({
     date: todayKey,
     progress: {
-      currentChapterIndex: currentIndex,
+      currentChapterIndex: todayChapterIndex,
       totalChapters
     },
     chapter: {
