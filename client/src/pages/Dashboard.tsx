@@ -53,6 +53,8 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
 
   useEffect(() => {
     let active = true;
+    setLoading(true);
+    setError(null);
     const load = async () => {
       try {
         // Always fetch today's chapter and version (public)
@@ -81,14 +83,27 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
             setUserId(meData.user.id);
           } catch (err) {
             // If auth fails, user might have invalid token, but continue without auth
+            // Don't set error state - just continue without user-specific data
             console.error("Failed to fetch user data:", err);
           }
+        } else {
+          // Clear user-specific data when logged out
+          setLastDate(null);
+          setUserId(null);
         }
       } catch (err) {
         if (!active) return;
         const message =
           err instanceof Error ? err.message : "Failed to load data";
-        setError(message);
+        // Only set error if it's a critical error (not just missing auth for optional endpoints)
+        // If the error is about missing auth and we don't have a token, that's expected
+        if (message.includes("Authorization") && !token) {
+          // This is expected when not logged in, don't show error
+          console.log("Auth not required for public viewing");
+        } else {
+          // Only show error if we couldn't load the chapter
+          setError(message);
+        }
       } finally {
         if (active) setLoading(false);
       }
@@ -259,7 +274,7 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
       <div className="panel">
         <h2>Something went wrong</h2>
         <p className="error">{error ?? "No chapter data found."}</p>
-        <button onClick={onLogout}>Log out</button>
+        {token && <button onClick={onLogout}>Log out</button>}
       </div>
     );
   }
