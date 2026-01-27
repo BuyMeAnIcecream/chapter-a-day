@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Dashboard } from "./pages/Dashboard";
-import { Login } from "./pages/Login";
 import "./App.css";
 
 const TOKEN_KEY = "chapter_a_day_token";
