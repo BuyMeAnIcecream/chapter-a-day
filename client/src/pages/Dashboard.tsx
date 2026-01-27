@@ -305,24 +305,24 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
       />
       <div className="panel">
         <div className="header">
-        <div>
-          <h1>{token ? "Welcome back" : "Chapter a Day"}</h1>
-          {username && <p className="subtitle">{username}</p>}
-        </div>
-        {token && (
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            {userId && (
-              <NotificationBell 
-                token={token} 
-                onNavigateToComment={scrollToComment}
-              />
-            )}
-            <button onClick={onLogout} className="text-button">
-              Log out
-            </button>
+          <div>
+            <h1>{token ? "Welcome back" : "Chapter a Day"}</h1>
+            {username && <p className="subtitle">{username}</p>}
           </div>
-        )}
-      </div>
+          {token && (
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              {userId && (
+                <NotificationBell 
+                  token={token} 
+                  onNavigateToComment={scrollToComment}
+                />
+              )}
+              <button onClick={onLogout} className="text-button">
+                Log out
+              </button>
+            </div>
+          )}
+        </div>
       <div className="card">
         <h2>
           {today.chapter.book} {today.chapter.chapterNumber}
