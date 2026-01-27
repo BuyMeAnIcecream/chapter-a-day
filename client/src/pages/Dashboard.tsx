@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, fetchVersion, type Comment } from "../api";
+import { CommentContent } from "../components/CommentContent";
 
 type Props = {
   token: string;
@@ -129,7 +130,14 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
           <span className="comment-author">{comment.user.username}</span>
           <span className="comment-date">{formatDate(comment.createdAt)}</span>
         </div>
-        <div className="comment-content">{comment.content}</div>
+        <div className="comment-content">
+          <CommentContent
+            content={comment.content}
+            chapterContent={today.chapter.content}
+            book={today.chapter.book}
+            chapterNumber={today.chapter.chapterNumber}
+          />
+        </div>
         <div className="comment-actions">
           <button
             type="button"
