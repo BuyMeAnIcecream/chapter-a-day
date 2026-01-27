@@ -95,6 +95,7 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
         if (!active) return;
         const message =
           err instanceof Error ? err.message : "Failed to load data";
+        console.error("Error loading data:", err);
         // Only set error if it's a critical error (not just missing auth for optional endpoints)
         // If the error is about missing auth and we don't have a token, that's expected
         if (message.includes("Authorization") && !token) {
@@ -269,12 +270,24 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
     return <div className="panel">Loading your chapter...</div>;
   }
 
-  if (error || !today) {
+  if (error) {
     return (
       <div className="panel">
         <h2>Something went wrong</h2>
-        <p className="error">{error ?? "No chapter data found."}</p>
-        {token && <button onClick={onLogout}>Log out</button>}
+        <p className="error">{error}</p>
+        <p style={{ marginTop: "1rem", fontSize: "0.875rem", color: "#666" }}>
+          Please check your connection and try refreshing the page.
+        </p>
+        {token && <button onClick={onLogout} style={{ marginTop: "1rem" }}>Log out</button>}
+      </div>
+    );
+  }
+
+  if (!today) {
+    return (
+      <div className="panel">
+        <h2>Loading...</h2>
+        <p>Please wait while we load today's chapter.</p>
       </div>
     );
   }
