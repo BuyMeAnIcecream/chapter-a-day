@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, fetchVersion, type Comment } from "../api";
+import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, fetchVersion, fetchMe, type Comment } from "../api";
 import { CommentContent } from "../components/CommentContent";
+import { NotificationBell } from "../components/NotificationBell";
 
 type Props = {
   token: string;
@@ -26,6 +27,7 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState<{ [key: string]: string }>({});
   const [version, setVersion] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const loadComments = async (chapterId: string) => {
     setCommentsLoading(true);
@@ -46,15 +48,17 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
     let active = true;
     const load = async () => {
       try {
-        const [todayData, progressData, versionData] = await Promise.all([
+        const [todayData, progressData, versionData, meData] = await Promise.all([
           fetchToday(token),
           fetchProgress(token),
-          fetchVersion()
+          fetchVersion(),
+          fetchMe(token)
         ]);
         if (!active) return;
         setToday(todayData);
         setLastDate(progressData.progress?.lastDeliveredDate ?? null);
         setVersion(versionData.version);
+        setUserId(meData.user.id);
         // Load comments for the chapter
         if (todayData.chapter.id) {
           loadComments(todayData.chapter.id);
@@ -215,9 +219,12 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
           <h1>Welcome back</h1>
           <p className="subtitle">{username}</p>
         </div>
-        <button onClick={onLogout} className="text-button">
-          Log out
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          {userId && <NotificationBell token={token} userId={userId} />}
+          <button onClick={onLogout} className="text-button">
+            Log out
+          </button>
+        </div>
       </div>
       <div className="card">
         <h2>

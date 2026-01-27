@@ -64,6 +64,13 @@ export const loginUser = async (
   return handleResponse<AuthResponse>(response);
 };
 
+export const fetchMe = async (token: string): Promise<{ user: { id: string; username: string; createdAt: string } }> => {
+  const response = await fetch(`${API_BASE}/api/me`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return handleResponse<{ user: { id: string; username: string; createdAt: string } }>(response);
+};
+
 export const fetchToday = async (token: string) => {
   const response = await fetch(`${API_BASE}/api/today`, {
     headers: { Authorization: `Bearer ${token}` }
@@ -139,4 +146,52 @@ export const deleteComment = async (
 export const fetchVersion = async (): Promise<{ version: string }> => {
   const response = await fetch(`${API_BASE}/api/version`);
   return handleResponse<{ version: string }>(response);
+};
+
+export type Notification = {
+  id: string;
+  commentId: string;
+  parentCommentId: string;
+  read: boolean;
+  createdAt: string;
+  comment: {
+    id: string;
+    content: string;
+    user: { username: string };
+    chapter: { book: string; chapterNumber: number };
+  };
+  parentComment: {
+    id: string;
+    content: string;
+  };
+};
+
+export const fetchNotifications = async (
+  token: string
+): Promise<{ notifications: Notification[]; unreadCount: number }> => {
+  const response = await fetch(`${API_BASE}/api/notifications`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return handleResponse<{ notifications: Notification[]; unreadCount: number }>(response);
+};
+
+export const markNotificationRead = async (
+  notificationId: string,
+  token: string
+): Promise<{ success: boolean }> => {
+  const response = await fetch(`${API_BASE}/api/notifications/${notificationId}/read`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return handleResponse<{ success: boolean }>(response);
+};
+
+export const markAllNotificationsRead = async (
+  token: string
+): Promise<{ success: boolean }> => {
+  const response = await fetch(`${API_BASE}/api/notifications/read-all`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return handleResponse<{ success: boolean }>(response);
 };

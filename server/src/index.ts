@@ -213,16 +213,17 @@ app.post("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) =
   }
 
   // If parentId is provided, verify parent comment exists and belongs to same chapter
+  let parentComment = null;
   if (parentId) {
-    const parent = await prisma.comment.findUnique({
+    parentComment = await prisma.comment.findUnique({
       where: { id: parentId }
     });
 
-    if (!parent) {
+    if (!parentComment) {
       return res.status(404).json({ error: "Parent comment not found" });
     }
 
-    if (parent.chapterId !== chapterId) {
+    if (parentComment.chapterId !== chapterId) {
       return res.status(400).json({ error: "Parent comment must belong to the same chapter" });
     }
   }
@@ -247,6 +248,17 @@ app.post("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) =
       }
     }
   });
+
+  // Create notification if this is a reply to someone else's comment
+  if (parentId && parentComment && parentComment.userId !== userId) {
+    await prisma.notification.create({
+      data: {
+        userId: parentComment.userId,
+        commentId: comment.id,
+        parentCommentId: parentId
+      }
+    });
+  }
 
   return res.json({
     id: comment.id,
@@ -341,6 +353,143 @@ app.get("/api/version", async (req, res) => {
   } catch (error) {
     console.error("Error fetching version:", error);
     return res.json({ version: "1.0.0" }); // Fallback version
+  }
+});
+
+// Get notifications for current user
+app.get("/api/notifications", authMiddleware, async (req, res) => {
+  const userId = (req as AuthRequest).userId;
+
+  try {
+    const notifications = await prisma.notification.findMany({
+      where: { userId },
+      include: {
+        comment: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true
+              }
+            },
+            chapter: {
+              select: {
+                book: true,
+                chapterNumber: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc"
+      },
+      take: 50 // Limit to 50 most recent
+    });
+
+    // Get parent comments for context
+    const parentCommentIds = notifications
+      .map((n: any) => n.parentCommentId)
+      .filter((id: string, index: number, self: string[]) => self.indexOf(id) === index);
+
+    const parentComments = await prisma.comment.findMany({
+      where: {
+        id: { in: parentCommentIds }
+      },
+      select: {
+        id: true,
+        content: true
+      }
+    });
+
+    const parentCommentMap = new Map(parentComments.map(pc => [pc.id, pc]));
+
+    const unreadCount = notifications.filter(n => !n.read).length;
+
+    const formattedNotifications = notifications.map((notification: any) => ({
+      id: notification.id,
+      commentId: notification.commentId,
+      parentCommentId: notification.parentCommentId,
+      read: notification.read,
+      createdAt: notification.createdAt,
+      comment: {
+        id: notification.comment.id,
+        content: notification.comment.content,
+        user: {
+          username: notification.comment.user.username
+        },
+        chapter: {
+          book: notification.comment.chapter.book,
+          chapterNumber: notification.comment.chapter.chapterNumber
+        }
+      },
+      parentComment: parentCommentMap.get(notification.parentCommentId) || {
+        id: notification.parentCommentId,
+        content: "[Comment deleted]"
+      }
+    }));
+
+    return res.json({
+      notifications: formattedNotifications,
+      unreadCount
+    });
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    return res.status(500).json({ error: "Failed to fetch notifications" });
+  }
+});
+
+// Mark notification as read
+app.put("/api/notifications/:notificationId/read", authMiddleware, async (req, res) => {
+  const userId = (req as AuthRequest).userId;
+  const notificationId = Array.isArray(req.params.notificationId) 
+    ? req.params.notificationId[0] 
+    : req.params.notificationId;
+
+  try {
+    const notification = await prisma.notification.findUnique({
+      where: { id: notificationId }
+    });
+
+    if (!notification) {
+      return res.status(404).json({ error: "Notification not found" });
+    }
+
+    if (notification.userId !== userId) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    await prisma.notification.update({
+      where: { id: notificationId },
+      data: { read: true }
+    });
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+    return res.status(500).json({ error: "Failed to mark notification as read" });
+  }
+});
+
+// Mark all notifications as read
+app.put("/api/notifications/read-all", authMiddleware, async (req, res) => {
+  const userId = (req as AuthRequest).userId;
+
+  try {
+    await prisma.notification.updateMany({
+      where: {
+        userId,
+        read: false
+      },
+      data: {
+        read: true
+      }
+    });
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error);
+    return res.status(500).json({ error: "Failed to mark all notifications as read" });
   }
 });
 

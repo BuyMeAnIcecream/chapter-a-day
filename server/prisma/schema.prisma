@@ -8,12 +8,13 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  username     String    @unique
+  id           String         @id @default(cuid())
+  username     String         @unique
   passwordHash String
-  createdAt    DateTime  @default(now())
+  createdAt    DateTime       @default(now())
   progress     Progress?
   comments     Comment[]
+  notifications Notification[]
 }
 
 model Progress {
@@ -34,21 +35,33 @@ model Chapter {
 }
 
 model Comment {
-  id        String    @id @default(cuid())
-  content   String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  userId    String
-  chapterId String
-  parentId  String?
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter   Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[] @relation("CommentReplies")
+  id              String         @id @default(cuid())
+  content         String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  userId          String
+  chapterId       String
+  parentId        String?
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter         Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  parent          Comment?       @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies         Comment[]      @relation("CommentReplies")
+  notifications   Notification[]
 }
 
 model AppConfig {
   key       String   @id
   value     String
   updatedAt DateTime  @updatedAt
+}
+
+model Notification {
+  id              String   @id @default(cuid())
+  userId          String
+  commentId       String
+  parentCommentId String
+  read            Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment         Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
 }
