@@ -2,11 +2,13 @@ import { useEffect, useState, type FormEvent } from "react";
 import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, fetchVersion, fetchMe, type Comment } from "../api";
 import { CommentContent } from "../components/CommentContent";
 import { NotificationBell } from "../components/NotificationBell";
+import { Login } from "./Login";
 
 type Props = {
-  token: string;
-  username: string;
+  token: string | null;
+  username: string | null;
   onLogout: () => void;
+  onAuthSuccess: (token: string, username: string) => void;
 };
 
 type TodayResponse = {
@@ -15,7 +17,7 @@ type TodayResponse = {
   chapter: { id: string; book: string; chapterNumber: number; content: string };
 };
 
-export const Dashboard = ({ token, username, onLogout }: Props) => {
+export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) => {
   const [today, setToday] = useState<TodayResponse | null>(null);
   const [lastDate, setLastDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,24 +46,43 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
     }
   };
 
+  const handleLoginPrompt = () => {
+    // Scroll to top to show login form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     let active = true;
     const load = async () => {
       try {
-        const [todayData, progressData, versionData, meData] = await Promise.all([
+        // Always fetch today's chapter and version (public)
+        const [todayData, versionData] = await Promise.all([
           fetchToday(token),
-          fetchProgress(token),
-          fetchVersion(),
-          fetchMe(token)
+          fetchVersion()
         ]);
         if (!active) return;
         setToday(todayData);
-        setLastDate(progressData.progress?.lastDeliveredDate ?? null);
         setVersion(versionData.version);
-        setUserId(meData.user.id);
-        // Load comments for the chapter
+        
+        // Load comments for the chapter (public)
         if (todayData.chapter.id) {
           loadComments(todayData.chapter.id);
+        }
+
+        // Only fetch user-specific data if logged in
+        if (token) {
+          try {
+            const [progressData, meData] = await Promise.all([
+              fetchProgress(token),
+              fetchMe(token)
+            ]);
+            if (!active) return;
+            setLastDate(progressData.progress?.lastDeliveredDate ?? null);
+            setUserId(meData.user.id);
+          } catch (err) {
+            // If auth fails, user might have invalid token, but continue without auth
+            console.error("Failed to fetch user data:", err);
+          }
         }
       } catch (err) {
         if (!active) return;
@@ -81,6 +102,12 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
   const handleSubmitComment = async (e: FormEvent, parentId?: string) => {
     e.preventDefault();
     if (!today?.chapter.id) return;
+
+    // Require login to comment
+    if (!token) {
+      handleLoginPrompt();
+      return;
+    }
 
     const content = parentId ? replyContent[parentId] : newComment;
     if (!content || content.trim().length === 0) return;
@@ -106,7 +133,7 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
   };
 
   const handleDeleteComment = async (commentId: string) => {
-    if (!today?.chapter.id) return;
+    if (!today?.chapter.id || !token) return;
     if (!confirm("Are you sure you want to delete this comment?")) return;
 
     try {
@@ -139,7 +166,7 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
   const renderComment = (comment: Comment, depth: number = 0) => {
     if (!today) return null;
     
-    const isOwner = comment.user.username === username;
+    const isOwner = token && username && comment.user.username === username;
     const isReplying = replyingTo === comment.id;
 
     return (
@@ -165,7 +192,13 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
           <button
             type="button"
             className="text-button comment-action"
-            onClick={() => setReplyingTo(isReplying ? null : comment.id)}
+            onClick={() => {
+              if (!token) {
+                handleLoginPrompt();
+                return;
+              }
+              setReplyingTo(isReplying ? null : comment.id);
+            }}
           >
             {isReplying ? "Cancel" : "Reply"}
           </button>
@@ -233,22 +266,29 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
 
   return (
     <div className="panel">
+      {!token && (
+        <div style={{ marginBottom: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px", border: "1px solid #e0e0e0" }}>
+          <Login onAuthSuccess={onAuthSuccess} />
+        </div>
+      )}
       <div className="header">
         <div>
-          <h1>Welcome back</h1>
-          <p className="subtitle">{username}</p>
+          <h1>{token ? "Welcome back" : "Chapter a Day"}</h1>
+          {username && <p className="subtitle">{username}</p>}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          {userId && (
-            <NotificationBell 
-              token={token} 
-              onNavigateToComment={scrollToComment}
-            />
-          )}
-          <button onClick={onLogout} className="text-button">
-            Log out
-          </button>
-        </div>
+        {token && (
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            {userId && (
+              <NotificationBell 
+                token={token} 
+                onNavigateToComment={scrollToComment}
+              />
+            )}
+            <button onClick={onLogout} className="text-button">
+              Log out
+            </button>
+          </div>
+        )}
       </div>
       <div className="card">
         <h2>
@@ -257,30 +297,46 @@ export const Dashboard = ({ token, username, onLogout }: Props) => {
         <p className="muted">Date: {today.date}</p>
         <p className="content">{today.chapter.content}</p>
       </div>
-      <div className="progress">
-        <div>
-          Chapter {today.progress.currentChapterIndex} of{" "}
-          {today.progress.totalChapters}
+      {token && (
+        <div className="progress">
+          <div>
+            Chapter {today.progress.currentChapterIndex} of{" "}
+            {today.progress.totalChapters}
+          </div>
+          <div className="muted">
+            Last delivered:{" "}
+            {lastDate ? new Date(lastDate).toISOString().slice(0, 10) : "Today"}
+          </div>
         </div>
-        <div className="muted">
-          Last delivered:{" "}
-          {lastDate ? new Date(lastDate).toISOString().slice(0, 10) : "Today"}
-        </div>
-      </div>
+      )}
 
       <div className="comments-section">
         <h3>Comments</h3>
         {commentError && <div className="error">{commentError}</div>}
         
+        {!token && (
+          <div style={{ padding: "1rem", backgroundColor: "#fff3cd", borderRadius: "8px", marginBottom: "1rem", border: "1px solid #ffc107" }}>
+            <p style={{ margin: 0, color: "#856404" }}>
+              Please log in to post a comment.
+            </p>
+          </div>
+        )}
+        
         <form onSubmit={(e) => handleSubmitComment(e)} className="comment-form">
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
+            placeholder={token ? "Add a comment..." : "Log in to add a comment..."}
             rows={3}
             className="comment-input"
+            disabled={!token}
+            onFocus={() => {
+              if (!token) {
+                handleLoginPrompt();
+              }
+            }}
           />
-          <button type="submit" disabled={!newComment.trim()}>
+          <button type="submit" disabled={!newComment.trim() || !token}>
             Post Comment
           </button>
         </form>

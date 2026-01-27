@@ -129,19 +129,27 @@ app.get("/api/me", authMiddleware, async (req, res) => {
   return res.json({ user });
 });
 
-app.get("/api/today", authMiddleware, async (req, res) => {
+// Optional auth middleware - doesn't fail if no token, just sets userId if present
+const optionalAuthMiddleware: express.RequestHandler = (req, res, next) => {
+  const header = req.headers.authorization;
+  if (header) {
+    const [type, token] = header.split(" ");
+    if (type === "Bearer" && token) {
+      try {
+        const payload = jwt.verify(token, JWT_SECRET) as { userId: string };
+        (req as AuthRequest).userId = payload.userId;
+      } catch {
+        // Invalid token, but continue without auth
+      }
+    }
+  }
+  next();
+};
+
+app.get("/api/today", optionalAuthMiddleware, async (req, res) => {
   const userId = (req as AuthRequest).userId;
   const today = new Date();
   const todayKey = getDateKey(today);
-
-  // Ensure user has progress record
-  let progress = await prisma.progress.findUnique({
-    where: { userId }
-  });
-
-  if (!progress) {
-    return res.status(404).json({ error: "Progress not found" });
-  }
 
   const totalChapters = await prisma.chapter.count();
   if (totalChapters === 0) {
@@ -153,20 +161,32 @@ app.get("/api/today", authMiddleware, async (req, res) => {
   const daysSinceStart = getDaysSinceStart(today);
   const todayChapterIndex = Math.min(daysSinceStart + 1, totalChapters);
 
-  // Update user's progress to reflect they've seen up to today's chapter
-  // This is for tracking purposes, but doesn't affect which chapter is shown
-  const lastKey = progress.lastDeliveredDate
-    ? getDateKey(progress.lastDeliveredDate)
-    : null;
-
-  if (!lastKey || lastKey < todayKey) {
-    await prisma.progress.update({
-      where: { userId },
-      data: {
-        currentChapterIndex: todayChapterIndex,
-        lastDeliveredDate: getStartOfDayUtc(todayKey)
-      }
+  // If user is logged in, update their progress
+  if (userId) {
+    let progress = await prisma.progress.findUnique({
+      where: { userId }
     });
+
+    if (!progress) {
+      // Create progress record if it doesn't exist
+      progress = await prisma.progress.create({
+        data: { userId }
+      });
+    }
+
+    const lastKey = progress.lastDeliveredDate
+      ? getDateKey(progress.lastDeliveredDate)
+      : null;
+
+    if (!lastKey || lastKey < todayKey) {
+      await prisma.progress.update({
+        where: { userId },
+        data: {
+          currentChapterIndex: todayChapterIndex,
+          lastDeliveredDate: getStartOfDayUtc(todayKey)
+        }
+      });
+    }
   }
 
   const chapter = await prisma.chapter.findUnique({
@@ -289,7 +309,7 @@ app.post("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) =
   });
 });
 
-app.get("/api/chapters/:chapterId/comments", authMiddleware, async (req, res) => {
+app.get("/api/chapters/:chapterId/comments", async (req, res) => {
   const chapterId = Array.isArray(req.params.chapterId) ? req.params.chapterId[0] : req.params.chapterId;
 
   // Verify chapter exists

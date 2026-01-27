@@ -30,11 +30,12 @@ function App() {
 
   return (
     <div className="app">
-      {token && username ? (
-        <Dashboard token={token} username={username} onLogout={handleLogout} />
-      ) : (
-        <Login onAuthSuccess={handleAuthSuccess} />
-      )}
+      <Dashboard 
+        token={token} 
+        username={username} 
+        onLogout={handleLogout}
+        onAuthSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }

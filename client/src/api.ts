@@ -71,9 +71,13 @@ export const fetchMe = async (token: string): Promise<{ user: { id: string; user
   return handleResponse<{ user: { id: string; username: string; createdAt: string } }>(response);
 };
 
-export const fetchToday = async (token: string) => {
+export const fetchToday = async (token?: string | null) => {
+  const headers: HeadersInit = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   const response = await fetch(`${API_BASE}/api/today`, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers
   });
   return handleResponse<{
     date: string;
@@ -124,10 +128,14 @@ export const createComment = async (
 
 export const fetchComments = async (
   chapterId: string,
-  token: string
+  token?: string | null
 ): Promise<{ comments: Comment[] }> => {
+  const headers: HeadersInit = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   const response = await fetch(`${API_BASE}/api/chapters/${chapterId}/comments`, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers
   });
   return handleResponse<{ comments: Comment[] }>(response);
 };
