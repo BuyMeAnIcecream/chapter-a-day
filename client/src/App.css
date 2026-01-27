@@ -321,8 +321,8 @@ button:disabled {
 
 .notification-badge {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 2px;
+  right: 2px;
   background: #b91c1c;
   color: #fff;
   border-radius: 10px;
@@ -332,7 +332,7 @@ button:disabled {
   min-width: 18px;
   text-align: center;
   line-height: 1.2;
-  transform: translate(25%, -25%);
+  transform: translate(10%, -10%);
 }
 
 /* Notification Dropdown Styles */
