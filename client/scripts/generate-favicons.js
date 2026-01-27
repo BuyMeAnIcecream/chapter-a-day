@@ -14,6 +14,9 @@ async function generateFavicons() {
   try {
     console.log('Generating favicon PNGs from SVG...');
     
+    // The SVG viewBox has been optimized to crop whitespace (600 600 2000 2000)
+    // This makes the lamb fill more of the favicon space
+    
     // Generate PNG files for each size
     for (const size of sizes) {
       const outputPath = join(publicDir, `favicon-${size}x${size}.png`);
