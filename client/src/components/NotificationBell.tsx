@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead, type Notification } from "../api";
 import { NotificationDropdown } from "./NotificationDropdown";
+import hornIcon from "../assets/horn-icon.svg";
 
 type Props = {
   token: string;
@@ -100,7 +101,7 @@ export const NotificationBell = ({ token, userId, onNavigateToComment }: Props) 
         type="button"
         aria-label="Notifications"
       >
-        <span className="notification-bell-icon">🔔</span>
+        <img src={hornIcon} alt="Notifications" className="notification-bell-icon" />
         {unreadCount > 0 && (
           <span className="notification-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
         )}

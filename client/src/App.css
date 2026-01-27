@@ -314,6 +314,9 @@ button:disabled {
 
 .notification-bell-icon {
   display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .notification-badge {
