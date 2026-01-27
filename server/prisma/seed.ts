@@ -79,21 +79,26 @@ async function main() {
   await prisma.chapter.createMany({ data: records });
   console.log(`Seeded ${records.length} chapters.`);
   
-  // Initialize version if it doesn't exist
+  // Initialize or update version to latest
+  const latestVersion = "1.1.0";
   const existingVersion = await prisma.appConfig.findUnique({
     where: { key: "version" }
   });
   
   if (!existingVersion) {
-    await prisma.appConfig.upsert({
-      where: { key: "version" },
-      update: {},
-      create: {
+    await prisma.appConfig.create({
+      data: {
         key: "version",
-        value: "1.1.0"
+        value: latestVersion
       }
     });
-    console.log('Initialized version: 1.1.0');
+    console.log(`Initialized version: ${latestVersion}`);
+  } else if (existingVersion.value !== latestVersion) {
+    await prisma.appConfig.update({
+      where: { key: "version" },
+      data: { value: latestVersion }
+    });
+    console.log(`Updated version from ${existingVersion.value} to ${latestVersion}`);
   }
 }
 
