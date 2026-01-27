@@ -391,6 +391,7 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
           </p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
