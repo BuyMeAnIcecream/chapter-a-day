@@ -1,3 +1,7 @@
+server/book/study-bible.PDF
+server/book/study-bible.pdf
+server/book/study-bible-nt.pdf
+
 # Dependencies
 node_modules/
 **/node_modules/
