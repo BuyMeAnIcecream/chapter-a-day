@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, fetchVersion, type Comment } from "../api";
 import { CommentContent } from "../components/CommentContent";
+import { InfoButton } from "../components/InfoButton";
 import { NotificationBell } from "../components/NotificationBell";
 import { LoginModal } from "../components/LoginModal";
 
@@ -303,6 +304,7 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
             {username && <p className="subtitle">{username}</p>}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <InfoButton version={version} />
             {token ? (
               <>
                 <NotificationBell 
@@ -378,16 +380,6 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
           </div>
         )}
       </div>
-      {version && (
-        <div style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid #e0e0e0", textAlign: "center" }}>
-          <p className="muted" style={{ fontSize: "0.875rem" }}>
-            Version {version}
-          </p>
-          <p className="muted" style={{ fontSize: "0.75rem", marginTop: "0.5rem" }}>
-            Developed by Christ's silliest goose Anton Starodub
-          </p>
-        </div>
-      )}
       </div>
     </>
   );

@@ -28,7 +28,7 @@ struct NotificationBellView: View {
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 24, height: 24)
+                    .frame(width: 28, height: 28)
 
                 if unreadCount > 0 {
                     Text(unreadCount > 99 ? "99+" : "\(unreadCount)")
@@ -42,6 +42,8 @@ struct NotificationBellView: View {
                         .offset(x: 8, y: -8)
                 }
             }
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Notifications")

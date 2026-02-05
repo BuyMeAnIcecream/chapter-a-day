@@ -298,6 +298,69 @@ button:disabled {
   font-size: 0.9375rem;
 }
 
+/* Info Button Styles */
+.info-button {
+  position: relative;
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-button-icon {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.info-popup {
+  position: fixed;
+  z-index: 1000;
+}
+
+.info-popup-content {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  min-width: 250px;
+  max-width: 320px;
+}
+
+.info-popup-version {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.info-popup-credits {
+  color: #111827;
+  font-size: 0.875rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.info-popup-contact {
+  color: #111827;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.info-popup-contact a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.info-popup-contact a:hover {
+  color: #1d4ed8;
+}
+
 /* Notification Bell Styles */
 .notification-bell {
   position: relative;

@@ -29,6 +29,7 @@
 		1E8544152F2485AA000B4072 /* NotificationSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8544122F2485AA000B4072 /* NotificationSheetView.swift */; };
 		1E8544182F2485AA000B4072 /* VerseUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8544162F2485AA000B4072 /* VerseUtils.swift */; };
 		1E8544192F2485AA000B4072 /* CommentContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8544172F2485AA000B4072 /* CommentContent.swift */; };
+		1E85441A2F2485AA000B4072 /* InfoButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E85441B2F2485AA000B4072 /* InfoButtonView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		1E8544122F2485AA000B4072 /* NotificationSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSheetView.swift; sourceTree = "<group>"; };
 		1E8544162F2485AA000B4072 /* VerseUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerseUtils.swift; sourceTree = "<group>"; };
 		1E8544172F2485AA000B4072 /* CommentContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentContent.swift; sourceTree = "<group>"; };
+		1E85441B2F2485AA000B4072 /* InfoButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoButtonView.swift; sourceTree = "<group>"; };
 		1EABD3682F248413004F3FB9 /* ChapterADay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChapterADay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EABD3752F248416004F3FB9 /* ChapterADayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChapterADayTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EABD37F2F248416004F3FB9 /* ChapterADayUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChapterADayUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -177,6 +179,7 @@
 				1E8544172F2485AA000B4072 /* CommentContent.swift */,
 				1E8544112F2485AA000B4072 /* NotificationBellView.swift */,
 				1E8544122F2485AA000B4072 /* NotificationSheetView.swift */,
+				1E85441B2F2485AA000B4072 /* InfoButtonView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -385,6 +388,7 @@
 				1E8544152F2485AA000B4072 /* NotificationSheetView.swift in Sources */,
 				1E8544182F2485AA000B4072 /* VerseUtils.swift in Sources */,
 				1E8544192F2485AA000B4072 /* CommentContent.swift in Sources */,
+				1E85441A2F2485AA000B4072 /* InfoButtonView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

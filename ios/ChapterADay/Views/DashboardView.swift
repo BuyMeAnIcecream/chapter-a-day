@@ -13,6 +13,7 @@ struct DashboardView: View {
     @State private var scrollToCommentId: String?
     @State private var refreshTrigger = UUID()
     @State private var versePopover: (number: Int, text: String?, book: String, chapterNumber: Int)?
+    @State private var showInfoPopover = false
     let token: String?
     let username: String?
     let onLogout: () -> Void
@@ -94,7 +95,8 @@ struct DashboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack(spacing: 16) {
+                    HStack(spacing: 12) {
+                        InfoButtonView(version: viewModel.version, onTap: { showInfoPopover = true })
                         if let token {
                             NotificationBellView(token: token, refreshTrigger: refreshTrigger) { commentId in
                                 scrollToCommentId = commentId
@@ -105,11 +107,16 @@ struct DashboardView: View {
                                 Button("Logout", role: .destructive, action: onLogout)
                             } label: {
                                 Image(systemName: "person.circle")
+                                    .font(.system(size: 28))
+                                    .frame(minWidth: 44, minHeight: 44)
+                                    .contentShape(Rectangle())
                             }
                         } else {
                             Button("Log in") {
                                 showLoginSheet = true
                             }
+                            .font(.body)
+                            .frame(minHeight: 44)
                         }
                     }
                 }
@@ -134,6 +141,15 @@ struct DashboardView: View {
                         book: verse.book,
                         chapterNumber: verse.chapterNumber,
                         onDismiss: { versePopover = nil }
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            .overlay {
+                if showInfoPopover {
+                    InfoPopoverOverlay(
+                        version: viewModel.version,
+                        onDismiss: { showInfoPopover = false }
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
