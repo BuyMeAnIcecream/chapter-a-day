@@ -6,7 +6,7 @@ import { existsSync, mkdirSync } from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const publicDir = join(__dirname, '../public');
-const svgPath = join(publicDir, 'lamb.svg');
+const svgPath = join(publicDir, 'lamb_circle.svg');
 
 const sizes = [16, 32, 48, 64, 96, 128, 192, 256];
 
