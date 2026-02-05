@@ -12,6 +12,7 @@ struct DashboardView: View {
     @State private var showLoginSheet = false
     @State private var scrollToCommentId: String?
     @State private var refreshTrigger = UUID()
+    @State private var versePopover: (number: Int, text: String?, book: String, chapterNumber: Int)?
     let token: String?
     let username: String?
     let onLogout: () -> Void
@@ -68,7 +69,8 @@ struct DashboardView: View {
                             currentUsername: username,
                             isLoggedIn: token != nil,
                             onLoginRequired: { showLoginSheet = true },
-                            scrollToCommentId: $scrollToCommentId
+                            scrollToCommentId: $scrollToCommentId,
+                            onVerseTap: { versePopover = ($0, $1, $2, $3) }
                         )
                     }
                 }
@@ -122,6 +124,18 @@ struct DashboardView: View {
                 LoginView { auth in
                     onAuthSuccess(auth)
                     showLoginSheet = false
+                }
+            }
+            .overlay {
+                if let verse = versePopover {
+                    VersePopoverOverlay(
+                        verseNumber: verse.number,
+                        verseText: verse.text,
+                        book: verse.book,
+                        chapterNumber: verse.chapterNumber,
+                        onDismiss: { versePopover = nil }
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
         }

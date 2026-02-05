@@ -13,6 +13,7 @@ struct CommentsView: View {
     let isLoggedIn: Bool
     let onLoginRequired: () -> Void
     @Binding var scrollToCommentId: String?
+    let onVerseTap: (Int, String?, String, Int) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -35,13 +36,18 @@ struct CommentsView: View {
                     .foregroundColor(.secondary)
                     .padding(.horizontal)
             } else {
+                let chapter = viewModel.today?.chapter
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(viewModel.comments) { comment in
                         CommentRow(
                             comment: comment,
+                            chapterContent: chapter?.content ?? "",
+                            book: chapter?.book ?? "",
+                            chapterNumber: chapter?.chapterNumber ?? 0,
                             currentUsername: currentUsername,
                             depth: 0,
                             canDelete: isLoggedIn && currentUsername == comment.user.username,
+                            onVerseTap: onVerseTap,
                             onReply: {
                                 viewModel.replyingTo = comment.id
                             },
@@ -124,6 +130,7 @@ struct CommentsView: View {
         currentUsername: "testuser",
         isLoggedIn: true,
         onLoginRequired: { },
-        scrollToCommentId: .constant(nil)
+        scrollToCommentId: .constant(nil),
+        onVerseTap: { _, _, _, _ in }
     )
 }
