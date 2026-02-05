@@ -384,11 +384,11 @@ app.get("/api/version", async (req, res) => {
       where: { key: "version" }
     });
     
-    const version = config?.value || "1.1.1";
+    const version = config?.value || "1.1.2";
     return res.json({ version });
   } catch (error) {
     console.error("Error fetching version:", error);
-    return res.json({ version: "1.1.1" }); // Fallback version
+    return res.json({ version: "1.1.2" }); // Fallback version
   }
 });
 
