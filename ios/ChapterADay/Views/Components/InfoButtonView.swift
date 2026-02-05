@@ -38,8 +38,10 @@ struct InfoPopoverOverlay: View {
             .onTapGesture {
                 onDismiss()
             }
-            .overlay {
+            .overlay(alignment: .topTrailing) {
                 InfoPopoverCard(version: version, onDismiss: onDismiss)
+                    .padding(.top, 56)
+                    .padding(.trailing, 16)
             }
     }
 }

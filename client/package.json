@@ -11,7 +11,9 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "generate:favicons": "node scripts/generate-favicons.js"
+    "generate:favicons": "node scripts/generate-favicons.js",
+    "generate:info-icon": "node scripts/generate-info-icon.js",
+    "generate:app-icon": "node scripts/generate-app-icon.js"
   },
   "dependencies": {
     "react": "^19.2.0",

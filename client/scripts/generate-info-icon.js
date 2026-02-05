@@ -5,7 +5,7 @@ import { existsSync, mkdirSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const infoSvgPath = join(__dirname, '../src/assets/info-i-icon3.svg');
+const infoSvgPath = join(__dirname, '../src/assets/info-i-25.svg');
 const iosAssetsPath = join(__dirname, '../../ios/ChapterADay/ChapterADay/Assets.xcassets/InfoIcon.imageset');
 
 // iOS toolbar icon sizes: @1x 24pt, @2x 48pt, @3x 72pt
@@ -17,7 +17,7 @@ async function generateInfoIcon() {
       mkdirSync(iosAssetsPath, { recursive: true });
     }
 
-    console.log('Generating info icon PNGs for iOS from info-i-icon3.svg...');
+    console.log('Generating info icon PNGs for iOS from info-i-25.svg...');
 
     for (const size of sizes) {
       const outputPath = join(iosAssetsPath, `info-${size}.png`);

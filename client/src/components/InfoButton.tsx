@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import infoIcon from "../assets/info-i-icon3.svg";
+import infoIcon from "../assets/info-i-25.svg";
 
 type Props = {
   version: string | null;
