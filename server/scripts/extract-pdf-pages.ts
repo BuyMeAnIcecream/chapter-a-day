@@ -31,8 +31,8 @@ function main() {
     const pageCount = END_PAGE - START_PAGE + 1;
     console.log(`Done! Wrote ${OUTPUT_PDF} (${pageCount} pages)`);
   } catch (err) {
-    const status = err && typeof err === "object" && "status" in err ? (err as { status: number }).status : null;
-    if (status === 127 || (err instanceof Error && err.message?.includes("qpdf"))) {
+    const execErr = err as { status?: number; code?: string };
+    if (execErr.status === 127 || execErr.code === "ENOENT") {
       console.error("\nqpdf is not installed. Install it with:");
       console.error("  brew install qpdf");
       console.error("\nThen run: npm run extract:pdf");
