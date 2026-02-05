@@ -23,27 +23,26 @@ struct NotificationBellView: View {
         Button {
             showNotifications = true
         } label: {
-            ZStack(alignment: .topTrailing) {
-                Image("HornIcon")
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 28, height: 28)
-
-                if unreadCount > 0 {
-                    Text(unreadCount > 99 ? "99+" : "\(unreadCount)")
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(Color.red)
-                        .clipShape(Capsule())
-                        .offset(x: 8, y: -8)
+            Image("HornIcon")
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 28, height: 28)
+                .overlay(alignment: .topTrailing) {
+                    if unreadCount > 0 {
+                        Text(unreadCount > 99 ? "99+" : "\(unreadCount)")
+                            .font(.caption2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(Color.red)
+                            .clipShape(Capsule())
+                            .offset(x: 4, y: -4)
+                    }
                 }
-            }
-            .frame(minWidth: 44, minHeight: 44)
-            .contentShape(Rectangle())
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Notifications")
