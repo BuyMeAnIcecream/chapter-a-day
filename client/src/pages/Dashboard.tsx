@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, fetchVersion, fetchMe, type Comment } from "../api";
+import { fetchToday, fetchProgress, createComment, fetchComments, deleteComment, fetchVersion, type Comment } from "../api";
 import { CommentContent } from "../components/CommentContent";
 import { NotificationBell } from "../components/NotificationBell";
 import { LoginModal } from "../components/LoginModal";
@@ -29,7 +29,6 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState<{ [key: string]: string }>({});
   const [version, setVersion] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const loadComments = async (chapterId: string) => {
@@ -74,13 +73,9 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
         // Only fetch user-specific data if logged in
         if (token) {
           try {
-            const [progressData, meData] = await Promise.all([
-              fetchProgress(token),
-              fetchMe(token)
-            ]);
+            const progressData = await fetchProgress(token);
             if (!active) return;
             setLastDate(progressData.progress?.lastDeliveredDate ?? null);
-            setUserId(meData.user.id);
           } catch (err) {
             // If auth fails, user might have invalid token, but continue without auth
             // Don't set error state - just continue without user-specific data
@@ -89,7 +84,6 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
         } else {
           // Clear user-specific data when logged out
           setLastDate(null);
-          setUserId(null);
         }
       } catch (err) {
         if (!active) return;
@@ -311,12 +305,10 @@ export const Dashboard = ({ token, username, onLogout, onAuthSuccess }: Props) =
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             {token ? (
               <>
-                {userId && (
-                  <NotificationBell 
-                    token={token} 
-                    onNavigateToComment={scrollToComment}
-                  />
-                )}
+                <NotificationBell 
+                  token={token} 
+                  onNavigateToComment={scrollToComment}
+                />
                 <button onClick={onLogout} className="text-button">
                   Log out
                 </button>
