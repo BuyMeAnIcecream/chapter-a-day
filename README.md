@@ -2,6 +2,8 @@
 
 A daily Bible reading app that delivers one chapter per day from the New Testament, with a community commenting system.
 
+**Version 1.2.0**
+
 ## Features
 
 - **Daily Chapter Delivery**: Automatically delivers the next chapter each day
@@ -9,6 +11,8 @@ A daily Bible reading app that delivers one chapter per day from the New Testame
 - **Progress Tracking**: Tracks reading progress through all chapters
 - **Community Comments**: Users can comment on chapters and reply to other comments
 - **Nested Replies**: Support for threaded conversations
+- **Notifications**: Get notified when someone replies to your comments
+- **iOS App**: Native SwiftUI app for iPhone and iPad
 
 ## Tech Stack
 
@@ -24,12 +28,17 @@ A daily Bible reading app that delivers one chapter per day from the New Testame
 - **Vite** for build tooling
 - Modern CSS styling
 
+### iOS
+- **SwiftUI** native app
+- Shared API with web client
+
 ## Project Structure
 
 ```
 chapter-a-day/
 ├── server/          # Express API server
 ├── client/          # React frontend
+├── ios/             # SwiftUI iOS app
 └── README.md        # This file
 ```
 
@@ -94,7 +103,8 @@ docker-compose -f docker-compose.dev.yml exec server npm run import:kjv
 **First-time setup** (creates separate test database):
 ```bash
 cd server
-npm run test:setup    # Create and migrate test database
+npm run test:setup    # Creates chapteraday_test and runs migrations
+# Or manually: npm run test:db:create && npm run test:db:migrate
 ```
 
 **Running tests:**
@@ -131,12 +141,22 @@ npm run test:coverage # With coverage
 - `GET /api/chapters/:chapterId/comments` - Get all comments for a chapter
 - `DELETE /api/comments/:commentId` - Delete own comment
 
+### Notifications
+- `GET /api/notifications` - Get user's notifications
+- `PUT /api/notifications/:notificationId/read` - Mark notification as read
+- `PUT /api/notifications/read-all` - Mark all notifications as read
+
+### App
+- `GET /api/version` - Get app version (public)
+
 ## Database Schema
 
-- **User**: User accounts with email and hashed passwords
+- **User**: User accounts with username and hashed passwords
 - **Progress**: Tracks each user's reading progress
 - **Chapter**: Bible chapters with content
 - **Comment**: User comments on chapters with nested reply support
+- **Notification**: Reply notifications for users
+- **AppConfig**: Key-value config (e.g. version)
 
 ## Development
 

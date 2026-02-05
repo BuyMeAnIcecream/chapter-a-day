@@ -1,0 +1,25 @@
+.confirm-modal h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+}
+
+.confirm-modal-message {
+  color: #4b5563;
+  margin: 0 0 1.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.confirm-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.confirm-modal-confirm-danger {
+  background: #b91c1c !important;
+}
+
+.confirm-modal-confirm-danger:hover {
+  background: #991b1b !important;
+}

@@ -37,7 +37,7 @@ const makeContent = (book: string, chapter: number) =>
 
 async function main() {
   // Always ensure version is up to date
-  const latestVersion = "1.1.1";
+  const latestVersion = "1.2.0";
   const existingVersion = await prisma.appConfig.findUnique({
     where: { key: "version" }
   });

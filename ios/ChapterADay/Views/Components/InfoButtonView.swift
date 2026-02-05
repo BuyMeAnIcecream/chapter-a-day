@@ -91,5 +91,5 @@ struct InfoPopoverCard: View {
 }
 
 #Preview {
-    InfoButtonView(version: "1.1.1")
+    InfoButtonView(version: "1.2.0")
 }

@@ -1,34 +1,14 @@
-// Use environment variable or detect hostname for mobile access
+import type { AuthResponse, TodayResponse, Comment, Notification } from "./types";
+export type { AuthResponse, TodayResponse, Comment, Notification } from "./types";
+
 const getApiBase = () => {
-  // Check if we have a VITE_API_URL (set at build time)
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  
-  // In development, use the current hostname (works for localhost and network IP)
-  if (import.meta.env.DEV) {
-    const hostname = window.location.hostname;
-    return `http://${hostname}:4000`;
-  }
-  
-  // In production (Docker), use the same hostname with port 4000
-  // This assumes the server is accessible on the same hostname
-  const hostname = window.location.hostname;
-  const protocol = window.location.protocol;
-  // If running on port 80, assume server is on 4000
-  if (window.location.port === '' || window.location.port === '80') {
-    return `${protocol}//${hostname}:4000`;
-  }
-  // Otherwise use the same port (for development)
-  return `${protocol}//${hostname}:4000`;
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  const host = typeof window !== "undefined" ? window.location.hostname : "localhost";
+  const protocol = typeof window !== "undefined" ? window.location.protocol : "http:";
+  return `${protocol}//${host}:4000`;
 };
 
 const API_BASE = getApiBase();
-
-type AuthResponse = {
-  token: string;
-  user: { id: string; username: string };
-};
 
 const handleResponse = async <T>(response: Response): Promise<T> => {
   let data: any = {};
@@ -92,11 +72,7 @@ export const fetchToday = async (token?: string | null) => {
   const response = await fetch(`${API_BASE}/api/today`, {
     headers
   });
-  return handleResponse<{
-    date: string;
-    progress: { currentChapterIndex: number; totalChapters: number };
-    chapter: { id: string; book: string; chapterNumber: number; content: string };
-  }>(response);
+  return handleResponse<TodayResponse>(response);
 };
 
 export const fetchProgress = async (token: string) => {
@@ -107,19 +83,6 @@ export const fetchProgress = async (token: string) => {
     progress: { currentChapterIndex: number; lastDeliveredDate: string | null };
     totalChapters: number;
   }>(response);
-};
-
-export type Comment = {
-  id: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-  user: {
-    id: string;
-    username: string;
-  };
-  parentId: string | null;
-  replies: Comment[];
 };
 
 export const createComment = async (
@@ -167,24 +130,6 @@ export const deleteComment = async (
 export const fetchVersion = async (): Promise<{ version: string }> => {
   const response = await fetch(`${API_BASE}/api/version`);
   return handleResponse<{ version: string }>(response);
-};
-
-export type Notification = {
-  id: string;
-  commentId: string;
-  parentCommentId: string;
-  read: boolean;
-  createdAt: string;
-  comment: {
-    id: string;
-    content: string;
-    user: { username: string };
-    chapter: { book: string; chapterNumber: number };
-  };
-  parentComment: {
-    id: string;
-    content: string;
-  };
 };
 
 export const fetchNotifications = async (
