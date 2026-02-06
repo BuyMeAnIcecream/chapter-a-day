@@ -54,28 +54,23 @@ This guide will help you deploy your Chapter-a-Day app to Railway.
 10. Railway will automatically trigger a new build using the Dockerfile
 11. Once deployed, go to **"Settings"** → **"Networking"** and copy the **public URL** for your client (e.g., `https://your-client.railway.app`)
 
-## Step 4: Seed the Database
+## Step 4: Seed and Import KJV (First-Time Only)
 
-After the server is deployed, you need to seed your database with chapters:
+The deploy automatically runs migrations and seed. For a **new project**, you also need to import the KJV text once (replaces placeholder chapter content):
 
-1. Go to your server service in Railway
-2. Click on the service → **"Deployments"** tab
-3. Click on the latest deployment → **"View Logs"**
-4. Or use Railway CLI:
-   ```bash
-   # Install Railway CLI
-   npm i -g @railway/cli
-   
-   # Login
-   railway login
-   
-   # Link to your project
-   railway link
-   
-   # Run migrations and seed (if you have a seed script)
-   railway run --service server npx prisma migrate deploy
-   railway run --service server npm run seed
-   ```
+```bash
+# Install Railway CLI
+npm i -g @railway/cli
+
+# Login and link
+railway login
+railway link
+
+# Import KJV text (run once after first deploy)
+railway run --service server npm run import:kjv
+```
+
+This is not run on every deploy—only when setting up a new database.
 
 ## Step 5: Update Client API URL
 
