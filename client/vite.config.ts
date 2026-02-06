@@ -7,6 +7,9 @@ export default defineConfig({
   server: {
     host: '0.0.0.0', // Allow access from network
     port: 5173,
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+    },
   },
   test: {
     environment: 'jsdom',

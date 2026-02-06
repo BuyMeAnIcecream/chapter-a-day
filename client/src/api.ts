@@ -1,14 +1,16 @@
 import type { AuthResponse, TodayResponse, Comment, Notification } from "./types";
 export type { AuthResponse, TodayResponse, Comment, Notification } from "./types";
 
-const getApiBase = () => {
-  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+const getApiBase = (): string => {
+  // In production, use VITE_API_URL if set at build time
+  if (import.meta.env.PROD && import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // In dev, always use current host so it works from any device (e.g. iPhone on same network)
   const host = typeof window !== "undefined" ? window.location.hostname : "localhost";
   const protocol = typeof window !== "undefined" ? window.location.protocol : "http:";
   return `${protocol}//${host}:4000`;
 };
-
-const API_BASE = getApiBase();
 
 const handleResponse = async <T>(response: Response): Promise<T> => {
   let data: any = {};
@@ -37,7 +39,7 @@ export const registerUser = async (
   username: string,
   password: string
 ): Promise<AuthResponse> => {
-  const response = await fetch(`${API_BASE}/api/register`, {
+  const response = await fetch(`${getApiBase()}/api/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password })
@@ -49,7 +51,7 @@ export const loginUser = async (
   username: string,
   password: string
 ): Promise<AuthResponse> => {
-  const response = await fetch(`${API_BASE}/api/login`, {
+  const response = await fetch(`${getApiBase()}/api/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password })
@@ -58,7 +60,7 @@ export const loginUser = async (
 };
 
 export const fetchMe = async (token: string): Promise<{ user: { id: string; username: string; createdAt: string } }> => {
-  const response = await fetch(`${API_BASE}/api/me`, {
+  const response = await fetch(`${getApiBase()}/api/me`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return handleResponse<{ user: { id: string; username: string; createdAt: string } }>(response);
@@ -69,14 +71,14 @@ export const fetchToday = async (token?: string | null) => {
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  const response = await fetch(`${API_BASE}/api/today`, {
+  const response = await fetch(`${getApiBase()}/api/today`, {
     headers
   });
   return handleResponse<TodayResponse>(response);
 };
 
 export const fetchProgress = async (token: string) => {
-  const response = await fetch(`${API_BASE}/api/progress`, {
+  const response = await fetch(`${getApiBase()}/api/progress`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return handleResponse<{
@@ -91,7 +93,7 @@ export const createComment = async (
   token: string,
   parentId?: string
 ): Promise<Comment> => {
-  const response = await fetch(`${API_BASE}/api/chapters/${chapterId}/comments`, {
+  const response = await fetch(`${getApiBase()}/api/chapters/${chapterId}/comments`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -110,7 +112,7 @@ export const fetchComments = async (
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  const response = await fetch(`${API_BASE}/api/chapters/${chapterId}/comments`, {
+  const response = await fetch(`${getApiBase()}/api/chapters/${chapterId}/comments`, {
     headers
   });
   return handleResponse<{ comments: Comment[] }>(response);
@@ -120,7 +122,7 @@ export const deleteComment = async (
   commentId: string,
   token: string
 ): Promise<{ success: boolean }> => {
-  const response = await fetch(`${API_BASE}/api/comments/${commentId}`, {
+  const response = await fetch(`${getApiBase()}/api/comments/${commentId}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` }
   });
@@ -128,14 +130,14 @@ export const deleteComment = async (
 };
 
 export const fetchVersion = async (): Promise<{ version: string }> => {
-  const response = await fetch(`${API_BASE}/api/version`);
+  const response = await fetch(`${getApiBase()}/api/version`);
   return handleResponse<{ version: string }>(response);
 };
 
 export const fetchNotifications = async (
   token: string
 ): Promise<{ notifications: Notification[]; unreadCount: number }> => {
-  const response = await fetch(`${API_BASE}/api/notifications`, {
+  const response = await fetch(`${getApiBase()}/api/notifications`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return handleResponse<{ notifications: Notification[]; unreadCount: number }>(response);
@@ -145,7 +147,7 @@ export const markNotificationRead = async (
   notificationId: string,
   token: string
 ): Promise<{ success: boolean }> => {
-  const response = await fetch(`${API_BASE}/api/notifications/${notificationId}/read`, {
+  const response = await fetch(`${getApiBase()}/api/notifications/${notificationId}/read`, {
     method: "PUT",
     headers: { Authorization: `Bearer ${token}` }
   });
@@ -155,7 +157,7 @@ export const markNotificationRead = async (
 export const markAllNotificationsRead = async (
   token: string
 ): Promise<{ success: boolean }> => {
-  const response = await fetch(`${API_BASE}/api/notifications/read-all`, {
+  const response = await fetch(`${getApiBase()}/api/notifications/read-all`, {
     method: "PUT",
     headers: { Authorization: `Bearer ${token}` }
   });
