@@ -1,0 +1,23 @@
+{
+  "images": [
+    {
+      "filename": "horn-24.png",
+      "idiom": "universal",
+      "scale": "1x"
+    },
+    {
+      "filename": "horn-48.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "horn-72.png",
+      "idiom": "universal",
+      "scale": "3x"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}

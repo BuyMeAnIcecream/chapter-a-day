@@ -7,6 +7,13 @@ export default defineConfig({
   server: {
     host: '0.0.0.0', // Allow access from network
     port: 5173,
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+    },
   },
-  // Test configuration is handled by vitest.config.ts
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/__tests__/setup.ts'],
+    globals: true,
+  },
 })

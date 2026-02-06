@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "1.1.2",
+"version": "1.2.0",
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
@@ -12,7 +12,7 @@
     "import:pdf": "tsx scripts/import-pdf.ts",
     "import:kjv": "tsx scripts/import-kjv.ts",
     "test:db:create": "createdb chapteraday_test || true",
-    "test:db:migrate": "TEST_DATABASE_URL=\"postgresql://$(whoami)@localhost:5432/chapteraday_test?schema=public\" npx prisma migrate deploy",
+    "test:db:migrate": "DATABASE_URL=\"postgresql://$(whoami)@localhost:5432/chapteraday_test?schema=public\" npx prisma migrate deploy",
     "test:db:reset": "dropdb chapteraday_test --if-exists && createdb chapteraday_test && npm run test:db:migrate",
     "test": "jest",
     "test:watch": "jest --watch",
