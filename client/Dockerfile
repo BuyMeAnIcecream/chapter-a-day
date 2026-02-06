@@ -13,9 +13,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . ./
 
-# Build argument for API URL
+# Build arguments
 ARG VITE_API_URL=http://localhost:4000
+ARG VITE_GA_MEASUREMENT_ID
 ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_GA_MEASUREMENT_ID=$VITE_GA_MEASUREMENT_ID
 
 RUN npm run build
 
