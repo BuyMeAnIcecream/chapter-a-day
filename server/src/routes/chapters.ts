@@ -1,7 +1,7 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import { optionalAuthMiddleware, authMiddleware, type AuthRequest } from "../middleware/auth";
-import { getDateKey, getStartOfDayUtc, getDaysSinceStart } from "../utils";
+import { getDateKey, getStartOfDayPacific, getDaysSinceStart } from "../utils";
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -39,7 +39,7 @@ router.get("/today", optionalAuthMiddleware, async (req, res) => {
         where: { userId },
         data: {
           currentChapterIndex: todayChapterIndex,
-          lastDeliveredDate: getStartOfDayUtc(todayKey),
+          lastDeliveredDate: getStartOfDayPacific(todayKey),
         },
       });
     }
