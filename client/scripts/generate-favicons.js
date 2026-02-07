@@ -40,6 +40,17 @@ async function generateFavicons() {
       .png()
       .toFile(icoPath);
     console.log(`✓ Generated favicon.ico`);
+
+    // favicon.png for clients that request it directly (e.g. /favicon.png)
+    const pngPath = join(publicDir, 'favicon.png');
+    await sharp(svgPath)
+      .resize(32, 32, {
+        fit: 'contain',
+        background: { r: 255, g: 255, b: 255, alpha: 0 }
+      })
+      .png()
+      .toFile(pngPath);
+    console.log(`✓ Generated favicon.png`);
     
     console.log('\nAll favicons generated successfully!');
   } catch (error) {

@@ -19,7 +19,7 @@ ARG VITE_GA_MEASUREMENT_ID
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_GA_MEASUREMENT_ID=$VITE_GA_MEASUREMENT_ID
 
-RUN npm run build
+RUN npm run generate:favicons && npm run generate:og-image && npm run build
 
 # Production image with nginx
 FROM nginx:alpine AS runner
