@@ -124,13 +124,7 @@ export const CommentSection = ({
           <button
             type="button"
             className="text-button comment-action"
-            onClick={() => {
-              if (!token) {
-                onLoginRequired();
-                return;
-              }
-              setReplyingTo(isReplying ? null : comment.id);
-            }}
+            onClick={() => setReplyingTo(isReplying ? null : comment.id)}
           >
             {isReplying ? "Cancel" : "Reply"}
           </button>
@@ -207,20 +201,12 @@ export const CommentSection = ({
         >
           <textarea
             value={newComment}
-            onChange={(e) => {
-              setNewComment(e.target.value);
-              if (!token && e.target.value.trim().length > 0) {
-                onLoginRequired();
-              }
-            }}
-            onFocus={() => {
-              if (!token) onLoginRequired();
-            }}
+            onChange={(e) => setNewComment(e.target.value)}
             placeholder="Add a comment..."
             rows={3}
             className="comment-input"
           />
-          <button type="submit" disabled={!newComment.trim() || !token}>
+          <button type="submit" disabled={!newComment.trim()}>
             Post Comment
           </button>
         </form>
