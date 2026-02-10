@@ -245,10 +245,12 @@ describe('Comments API', () => {
       expect(response.body.comments[0].replies[1].content).toBe('Reply 2');
     });
 
-    it('should reject request without authentication', async () => {
-      await request(app)
+    it('should return comments without authentication (public endpoint)', async () => {
+      const response = await request(app)
         .get(`/api/chapters/${chapter.id}/comments`)
-        .expect(401);
+        .expect(200);
+
+      expect(response.body.comments).toBeDefined();
     });
 
     it('should reject request for non-existent chapter', async () => {

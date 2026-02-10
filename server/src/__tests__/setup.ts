@@ -22,6 +22,7 @@ const prisma = new PrismaClient({
 
 // Clean up database before each test
 beforeEach(async () => {
+  await prisma.notification.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.progress.deleteMany();
   await prisma.user.deleteMany();

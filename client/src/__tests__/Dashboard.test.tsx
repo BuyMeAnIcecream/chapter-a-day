@@ -8,15 +8,20 @@ import * as api from '../api';
 vi.mock('../api', () => ({
   fetchToday: vi.fn(),
   fetchProgress: vi.fn(),
+  fetchVersion: vi.fn(),
   createComment: vi.fn(),
   fetchComments: vi.fn(),
-  deleteComment: vi.fn()
+  deleteComment: vi.fn(),
+  fetchNotifications: vi.fn(),
+  markNotificationRead: vi.fn(),
+  markAllNotificationsRead: vi.fn(),
 }));
 
 describe('Dashboard Comments', () => {
   const mockToken = 'test-token';
   const mockUsername = 'testuser';
   const mockOnLogout = vi.fn();
+  const mockOnAuthSuccess = vi.fn();
 
   const mockTodayData = {
     date: '2024-01-01',
@@ -44,11 +49,13 @@ describe('Dashboard Comments', () => {
     vi.clearAllMocks();
     (api.fetchToday as any).mockResolvedValue(mockTodayData);
     (api.fetchProgress as any).mockResolvedValue(mockProgressData);
+    (api.fetchVersion as any).mockResolvedValue({ version: '1.2.0' });
     (api.fetchComments as any).mockResolvedValue({ comments: [] });
+    (api.fetchNotifications as any).mockResolvedValue({ notifications: [], unreadCount: 0 });
   });
 
   it('should display comments section', async () => {
-    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} onAuthSuccess={mockOnAuthSuccess} />);
 
     await waitFor(() => {
       expect(screen.getByText('Comments')).toBeInTheDocument();
@@ -56,7 +63,7 @@ describe('Dashboard Comments', () => {
   });
 
   it('should display empty state when no comments', async () => {
-    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} onAuthSuccess={mockOnAuthSuccess} />);
 
     await waitFor(() => {
       expect(screen.getByText(/No comments yet/)).toBeInTheDocument();
@@ -95,7 +102,7 @@ describe('Dashboard Comments', () => {
 
     (api.fetchComments as any).mockResolvedValue(mockComments);
 
-    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} onAuthSuccess={mockOnAuthSuccess} />);
 
     await waitFor(() => {
       expect(screen.getByText('First comment')).toBeInTheDocument();
@@ -125,7 +132,7 @@ describe('Dashboard Comments', () => {
       .mockResolvedValueOnce({ comments: [] })
       .mockResolvedValueOnce({ comments: [mockNewComment] });
 
-    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} onAuthSuccess={mockOnAuthSuccess} />);
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText('Add a comment...')).toBeInTheDocument();
@@ -192,7 +199,7 @@ describe('Dashboard Comments', () => {
         ]
       });
 
-    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} onAuthSuccess={mockOnAuthSuccess} />);
 
     await waitFor(() => {
       expect(screen.getByText('Parent comment')).toBeInTheDocument();
@@ -253,7 +260,7 @@ describe('Dashboard Comments', () => {
 
     (api.fetchComments as any).mockResolvedValue(mockComments);
 
-    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} onAuthSuccess={mockOnAuthSuccess} />);
 
     await waitFor(() => {
       expect(screen.getByText('My comment')).toBeInTheDocument();
@@ -291,22 +298,28 @@ describe('Dashboard Comments', () => {
       ]
     };
 
-    // Mock window.confirm
-    window.confirm = vi.fn(() => true);
-
     (api.fetchComments as any)
       .mockResolvedValueOnce(mockComments)
       .mockResolvedValueOnce({ comments: [] });
     (api.deleteComment as any).mockResolvedValue({ success: true });
 
-    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} onAuthSuccess={mockOnAuthSuccess} />);
 
     await waitFor(() => {
       expect(screen.getByText('My comment')).toBeInTheDocument();
     });
 
-    const deleteButton = screen.getByText('Delete');
+    const myComment = screen.getByText('My comment').closest('.comment');
+    const deleteButton = within(myComment!).getByText('Delete');
     await user.click(deleteButton);
+
+    // Confirm in the modal (scope to modal to avoid the comment's Delete button)
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Delete comment' })).toBeInTheDocument();
+    });
+    const modal = screen.getByRole('heading', { name: 'Delete comment' }).closest('.modal-content');
+    const confirmButton = within(modal!).getByRole('button', { name: 'Delete' });
+    await user.click(confirmButton);
 
     await waitFor(() => {
       expect(api.deleteComment).toHaveBeenCalledWith('comment-1', mockToken);
@@ -358,7 +371,7 @@ describe('Dashboard Comments', () => {
 
     (api.fetchComments as any).mockResolvedValue(mockComments);
 
-    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} />);
+    render(<Dashboard token={mockToken} username={mockUsername} onLogout={mockOnLogout} onAuthSuccess={mockOnAuthSuccess} />);
 
     await waitFor(() => {
       expect(screen.getByText('Parent comment')).toBeInTheDocument();

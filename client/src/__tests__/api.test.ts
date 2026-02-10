@@ -30,7 +30,7 @@ describe('Comment API Functions', () => {
 
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => mockComment
+        text: async () => JSON.stringify(mockComment)
       });
 
       const result = await createComment(mockChapterId, 'Test comment', mockToken);
@@ -66,7 +66,7 @@ describe('Comment API Functions', () => {
 
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => mockReply
+        text: async () => JSON.stringify(mockReply)
       });
 
       const result = await createComment(mockChapterId, 'Test reply', mockToken, 'parent-123');
@@ -90,7 +90,7 @@ describe('Comment API Functions', () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 400,
-        json: async () => ({ error: 'Bad request' })
+        text: async () => JSON.stringify({ error: 'Bad request' })
       });
 
       await expect(
@@ -132,7 +132,7 @@ describe('Comment API Functions', () => {
 
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => mockComments
+        text: async () => JSON.stringify(mockComments)
       });
 
       const result = await fetchComments(mockChapterId, mockToken);
@@ -153,7 +153,7 @@ describe('Comment API Functions', () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 404,
-        json: async () => ({ error: 'Chapter not found' })
+        text: async () => JSON.stringify({ error: 'Chapter not found' })
       });
 
       await expect(
@@ -166,7 +166,7 @@ describe('Comment API Functions', () => {
     it('should delete comment successfully', async () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ success: true })
+        text: async () => JSON.stringify({ success: true })
       });
 
       const result = await deleteComment(mockCommentId, mockToken);
@@ -188,7 +188,7 @@ describe('Comment API Functions', () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 403,
-        json: async () => ({ error: 'Forbidden' })
+        text: async () => JSON.stringify({ error: 'Forbidden' })
       });
 
       await expect(

@@ -65,7 +65,7 @@ server/node_modules/.prisma/
 
 
 # iOS - exclude entire directory
-ios/
+
 
 # iOS / Xcode (legacy patterns, keeping for reference)
 *.xcodeproj/*
