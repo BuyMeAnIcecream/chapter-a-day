@@ -109,6 +109,7 @@ export const NotificationBell = ({ token, onNavigateToComment }: Props) => {
         <NotificationDropdown
           ref={dropdownRef}
           notifications={notifications}
+          unreadCount={unreadCount}
           loading={loading}
           onMarkAsRead={handleMarkAsRead}
           onMarkAllAsRead={handleMarkAllAsRead}

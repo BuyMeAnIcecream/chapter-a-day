@@ -3,6 +3,7 @@ import { type Notification } from "../api";
 
 type Props = {
   notifications: Notification[];
+  unreadCount: number;
   loading: boolean;
   onMarkAsRead: (notificationId: string) => void;
   onMarkAllAsRead: () => void;
@@ -10,7 +11,7 @@ type Props = {
 };
 
 export const NotificationDropdown = forwardRef<HTMLDivElement, Props>(
-  ({ notifications, loading, onMarkAsRead, onMarkAllAsRead, onNavigateToComment }, ref) => {
+  ({ notifications, unreadCount, loading, onMarkAsRead, onMarkAllAsRead, onNavigateToComment }, ref) => {
     const formatTimeAgo = (dateString: string) => {
       const date = new Date(dateString);
       const now = new Date();
@@ -30,8 +31,6 @@ export const NotificationDropdown = forwardRef<HTMLDivElement, Props>(
       if (content.length <= maxLength) return content;
       return content.substring(0, maxLength) + "...";
     };
-
-    const unreadCount = notifications.filter(n => !n.read).length;
 
     return (
       <div ref={ref} className="notification-dropdown">
