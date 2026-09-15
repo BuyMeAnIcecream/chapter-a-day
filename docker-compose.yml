@@ -35,19 +35,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: >
-      sh -c "
-        npx prisma migrate deploy &&
-        node dist/index.js
-      "
     networks:
       - chapter-a-day-network
     restart: unless-stopped
 
   client:
     build:
-      context: .
-      dockerfile: client/Dockerfile
+      context: ./client
+      dockerfile: Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-http://localhost:4000}
     container_name: chapter-a-day-client

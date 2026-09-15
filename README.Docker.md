@@ -38,7 +38,7 @@ This will:
 - Start PostgreSQL database
 - Build and start the server
 - Build and start the client (served via nginx)
-- Run database migrations automatically
+- Run database migrations and seed an empty database automatically (the server exits if migrations fail)
 
 Access the application at:
 - Client: http://localhost (or http://localhost:80)
@@ -59,7 +59,7 @@ This will:
 
 ## Database Migrations
 
-Migrations run automatically on server startup in production. For manual migration:
+Migrations run automatically on server startup in production (via `server/scripts/start.sh`). For manual migration:
 
 ```bash
 # Production

@@ -1,4 +1,6 @@
 # Server Dockerfile
+# Build context must be the repository root, e.g.:
+#   docker build -f server/Dockerfile .
 FROM node:20-alpine AS base
 
 # Install dependencies only when needed
@@ -59,5 +61,5 @@ EXPOSE 4000
 
 ENV PORT=4000
 
-# Run migrations and start the server
-CMD ["sh", "-c", "echo 'Running database migrations...' && npx prisma migrate deploy && echo 'Migrations completed successfully!' && echo 'Starting server...' && node dist/index.js"]
+# Run migrations, seed, and start the server (exits if migrations fail)
+CMD ["sh", "scripts/start.sh"]
