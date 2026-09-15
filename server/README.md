@@ -80,41 +80,55 @@ The server will run on `http://localhost:4000` (or the PORT specified in .env).
 
 ## API Endpoints
 
+Authenticated endpoints expect `Authorization: Bearer <token>`. Tokens are JWTs returned by register/login and expire after 7 days.
+
 ### Authentication
 - `POST /api/register` - Register a new user
-  - Body: `{ email: string, password: string }`
-  - Returns: `{ token: string, user: { id, email } }`
+  - Body: `{ username: string, password: string }`
+  - Returns: `{ token: string, user: { id, username } }`
+  - `409` if the username is taken
 
 - `POST /api/login` - Login user
-  - Body: `{ email: string, password: string }`
-  - Returns: `{ token: string, user: { id, email } }`
+  - Body: `{ username: string, password: string }`
+  - Returns: `{ token: string, user: { id, username } }`
 
 - `GET /api/me` - Get current user (requires auth)
-  - Headers: `Authorization: Bearer <token>`
-  - Returns: `{ user: { id, email, createdAt } }`
+  - Returns: `{ user: { id, username, createdAt } }`
 
 ### Chapters
-- `GET /api/today` - Get today's chapter (requires auth)
-  - Headers: `Authorization: Bearer <token>`
-  - Returns: `{ date, progress, chapter: { id, book, chapterNumber, content } }`
+- `GET /api/today` - Get today's chapter (auth optional)
+  - Everyone gets the same chapter, based on days since 2026-01-01 in Pacific time
+  - If authenticated, also records delivery in the user's progress
+  - Returns: `{ date, progress: { currentChapterIndex, totalChapters }, chapter: { id, book, chapterNumber, content } }`
 
 - `GET /api/progress` - Get user's reading progress (requires auth)
-  - Headers: `Authorization: Bearer <token>`
   - Returns: `{ progress, totalChapters }`
 
 ### Comments
 - `POST /api/chapters/:chapterId/comments` - Create a comment or reply (requires auth)
-  - Headers: `Authorization: Bearer <token>`
   - Body: `{ content: string, parentId?: string }`
-  - Returns: `{ id, content, createdAt, updatedAt, user: { id, email }, parentId }`
+  - Returns: `{ id, content, createdAt, updatedAt, user: { id, username }, parentId }`
+  - Replying to another user's comment creates a notification for them
 
-- `GET /api/chapters/:chapterId/comments` - Get all comments for a chapter (requires auth)
-  - Headers: `Authorization: Bearer <token>`
+- `GET /api/chapters/:chapterId/comments` - Get all comments for a chapter (public)
   - Returns: `{ comments: Comment[] }` (nested structure with replies)
 
-- `DELETE /api/comments/:commentId` - Delete own comment (requires auth)
-  - Headers: `Authorization: Bearer <token>`
+- `DELETE /api/comments/:commentId` - Delete own comment and its replies (requires auth)
   - Returns: `{ success: true }`
+
+### Notifications
+- `GET /api/notifications` - Get the 50 most recent notifications (requires auth)
+  - Returns: `{ notifications: Notification[], unreadCount }` (`unreadCount` covers all unread notifications, not just the 50 returned)
+
+- `PUT /api/notifications/:notificationId/read` - Mark one notification as read (requires auth)
+  - Returns: `{ success: true }`
+
+- `PUT /api/notifications/read-all` - Mark all notifications as read (requires auth)
+  - Returns: `{ success: true }`
+
+### App
+- `GET /api/version` - Get the app version (public)
+  - Returns: `{ version }`, read from `server/package.json`. Bump it with `npm version <patch|minor|major> --no-git-tag-version`.
 
 ## Database Management
 
@@ -122,6 +136,8 @@ The server will run on `http://localhost:4000` (or the PORT specified in .env).
 - **Reset database**: `npx prisma migrate reset`
 - **Create migration**: `npx prisma migrate dev --name migration_name`
 - **Apply migrations**: `npx prisma migrate deploy` (for production)
+
+In production (Docker and Railway), `scripts/start.sh` runs migrations, seeds an empty database, and starts the server. Startup stops if migrations fail.
 
 ## Testing
 
@@ -142,11 +158,10 @@ npm run test:db:migrate   # Run migrations on test database
 npm run test:db:reset
 ```
 
-**Configure test database:**
+**Configure test database (optional):**
 ```bash
-# Create .env.test file (optional, will auto-detect from .env)
-cp .env.test.example .env.test
-# Edit .env.test with your test database URL
+# Only needed if the auto-detected URL below is wrong
+echo 'TEST_DATABASE_URL="postgresql://user@localhost:5432/chapteraday_test?schema=public"' > .env.test
 ```
 
 The test setup will automatically:
@@ -186,12 +201,12 @@ TEST_DATABASE_URL="postgresql://user@localhost:5432/chapteraday_test?schema=publ
 ```
 
 ### Test Coverage
-- Authentication endpoints
-- Chapter delivery logic
 - Comment CRUD operations
 - Nested comment structure
 - Permission checks (delete own comments only)
 - Error handling and validation
+- Notification unread counts and mark-as-read
+- Version endpoint
 
 All tests use a test database and are isolated with proper setup/teardown. The test database is cleaned before each test.
 
@@ -199,13 +214,13 @@ All tests use a test database and are isolated with proper setup/teardown. The t
 
 ### User
 - `id` (String, CUID)
-- `email` (String, unique)
+- `username` (String, unique)
 - `passwordHash` (String)
 - `createdAt` (DateTime)
 
 ### Progress
 - `id` (String, CUID)
-- `userId` (String, foreign key)
+- `userId` (String, unique foreign key)
 - `currentChapterIndex` (Int)
 - `lastDeliveredDate` (DateTime?)
 
@@ -224,3 +239,18 @@ All tests use a test database and are isolated with proper setup/teardown. The t
 - `userId` (String, foreign key)
 - `chapterId` (String, foreign key)
 - `parentId` (String?, foreign key to Comment for replies)
+
+### Notification
+- `id` (String, CUID)
+- `userId` (String, foreign key: the user being notified)
+- `commentId` (String, foreign key: the reply)
+- `parentCommentId` (String: the comment that was replied to)
+- `read` (Boolean)
+- `createdAt` (DateTime)
+
+### AppConfig
+- `key` (String, primary key)
+- `value` (String)
+- `updatedAt` (DateTime)
+
+Currently unused; the app version now comes from `package.json`.

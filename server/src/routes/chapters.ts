@@ -1,10 +1,9 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../db";
 import { optionalAuthMiddleware, authMiddleware, type AuthRequest } from "../middleware/auth";
 import { getDateKey, getStartOfDayPacific, getDaysSinceStart } from "../utils";
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 router.get("/today", optionalAuthMiddleware, async (req, res) => {
   const userId = (req as AuthRequest).userId;

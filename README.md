@@ -2,8 +2,6 @@
 
 A daily Bible reading app that delivers one chapter per day from the New Testament, with a community commenting system.
 
-**Version 1.2.0**
-
 ## Features
 
 - **Daily Chapter Delivery**: Automatically delivers the next chapter each day
@@ -156,7 +154,7 @@ npm run test:coverage # With coverage
 - **Chapter**: Bible chapters with content
 - **Comment**: User comments on chapters with nested reply support
 - **Notification**: Reply notifications for users
-- **AppConfig**: Key-value config (e.g. version)
+- **AppConfig**: Key-value config (currently unused; the app version comes from `server/package.json`)
 
 ## Development
 

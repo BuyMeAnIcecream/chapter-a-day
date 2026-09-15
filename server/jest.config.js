@@ -1,6 +1,8 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  // Test files share one database and wipe it in beforeEach, so run them serially.
+  maxWorkers: 1,
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
   testPathIgnorePatterns: ['/node_modules/', '/__tests__/setup.ts'],

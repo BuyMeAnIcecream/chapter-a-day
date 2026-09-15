@@ -1,9 +1,8 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../db";
 import { authMiddleware, type AuthRequest } from "../middleware/auth";
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 const getChapterId = (req: express.Request) =>
   Array.isArray(req.params.chapterId) ? req.params.chapterId[0] : req.params.chapterId;

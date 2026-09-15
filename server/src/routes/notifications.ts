@@ -1,9 +1,8 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../db";
 import { authMiddleware, type AuthRequest } from "../middleware/auth";
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 const getNotificationId = (req: express.Request) =>
   Array.isArray(req.params.notificationId)
@@ -56,7 +55,10 @@ router.get("/notifications", authMiddleware, async (req, res) => {
 
     const parentCommentMap = new Map(parentComments.map((pc) => [pc.id, pc]));
 
-    const unreadCount = notifications.filter((n) => !n.read).length;
+    // Count across all notifications, not just the 50 returned above.
+    const unreadCount = await prisma.notification.count({
+      where: { userId, read: false },
+    });
 
     const formattedNotifications = notifications.map((notification: any) => ({
       id: notification.id,

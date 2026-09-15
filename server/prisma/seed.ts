@@ -36,28 +36,6 @@ const makeContent = (book: string, chapter: number) =>
   `${book} ${chapter}\n\nThis is placeholder content for ${book} chapter ${chapter}.`;
 
 async function main() {
-  // Always ensure version is up to date
-  const latestVersion = "1.2.0";
-  const existingVersion = await prisma.appConfig.findUnique({
-    where: { key: "version" }
-  });
-  
-  if (!existingVersion) {
-    await prisma.appConfig.create({
-      data: {
-        key: "version",
-        value: latestVersion
-      }
-    });
-    console.log(`Initialized version: ${latestVersion}`);
-  } else if (existingVersion.value !== latestVersion) {
-    await prisma.appConfig.update({
-      where: { key: "version" },
-      data: { value: latestVersion }
-    });
-    console.log(`Updated version from ${existingVersion.value} to ${latestVersion}`);
-  }
-
   // Check if chapters already exist
   const existingChapters = await prisma.chapter.count();
   if (existingChapters > 0) {
